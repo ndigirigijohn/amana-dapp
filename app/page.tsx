@@ -1,11 +1,26 @@
-import type React from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, ArrowRight, Shield, Users, BarChart3, Globe, Layers, FileText } from "lucide-react"
-import HackathonForm from "@/components/hackathon-form"
-import MobileNav from "@/components/mobile-nav"
+import type React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  CheckCircle,
+  ArrowRight,
+  Shield,
+  Users,
+  BarChart3,
+  Globe,
+  Layers,
+  FileText,
+} from "lucide-react";
+import HackathonForm from "@/components/hackathon-form";
+import MobileNav from "@/components/mobile-nav";
 
 export default function Home() {
   return (
@@ -15,26 +30,46 @@ export default function Home() {
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10">
             <Link href="/" className="flex items-center space-x-2">
-              <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
+              <Image
+                src="/Amana_logo.png?height=32&width=32"
+                width={32}
+                height={32}
+                alt="Amana CE Logo"
+              />
               <span className="inline-block font-bold">Amana CE</span>
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              <Link href="#features" className="text-sm font-medium transition-colors hover:text-primary px-3 py-2">
+              <Link
+                href="#features"
+                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
+              >
                 Features
               </Link>
-              <Link href="#benefits" className="text-sm font-medium transition-colors hover:text-primary px-3 py-2">
+              <Link
+                href="#benefits"
+                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
+              >
                 Benefits
               </Link>
-              <Link href="#how-it-works" className="text-sm font-medium transition-colors hover:text-primary px-3 py-2">
+              <Link
+                href="#how-it-works"
+                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
+              >
                 How It Works
               </Link>
-              <Link href="#pricing" className="text-sm font-medium transition-colors hover:text-primary px-3 py-2">
+              <Link
+                href="#pricing"
+                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
+              >
                 Pricing
               </Link>
-              <Link href="#contact" className="text-sm font-medium transition-colors hover:text-primary px-3 py-2">
+              <Link
+                href="#contact"
+                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
+              >
                 Contact
               </Link>
               <Button variant="outline" size="sm" asChild>
@@ -62,8 +97,10 @@ export default function Home() {
                     Transforming SACCO Operations with Blockchain
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Amana Chain Entities (Amana CE) is a blockchain-based platform built on Cardano that transforms how
-                    SACCOs operate through innovative features that address their core challenges.
+                    Amana Chain Entities (Amana CE) is a blockchain-based
+                    platform built on Cardano that transforms how SACCOs operate
+                    through innovative features that address their core
+                    challenges.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -79,9 +116,9 @@ export default function Home() {
                 </div>
               </div>
               <Image
-                src="/placeholder.svg?height=550&width=550"
+                src="/Amana_Hero.jpeg"
                 width={550}
-                height={550}
+                height={416}
                 alt="Amana CE Platform"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
               />
@@ -90,16 +127,22 @@ export default function Home() {
         </section>
 
         {/* Key Features Section */}
-        <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <section
+          id="features"
+          className="w-full py-12 md:py-24 lg:py-32 bg-background"
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Key Features</div>
+                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+                  Key Features
+                </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Innovative Features for Modern SACCOs
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our platform addresses the core challenges facing SACCOs with blockchain-powered solutions
+                  Our platform addresses the core challenges facing SACCOs with
+                  blockchain-powered solutions
                 </p>
               </div>
             </div>
@@ -110,16 +153,22 @@ export default function Home() {
         </section>
 
         {/* Benefits Section */}
-        <section id="benefits" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section
+          id="benefits"
+          className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Benefits</div>
+                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+                  Benefits
+                </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Advantages for SACCOs and Members
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Discover how Amana CE transforms financial cooperatives and empowers communities
+                  Discover how Amana CE transforms financial cooperatives and
+                  empowers communities
                 </p>
               </div>
             </div>
@@ -131,7 +180,8 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <BenefitItem title="Increased Transparency">
-                    Complete visibility into all financial transactions and decisions
+                    Complete visibility into all financial transactions and
+                    decisions
                   </BenefitItem>
                   <BenefitItem title="Reduced Operational Costs">
                     Automation of key processes reduces administrative overhead
@@ -139,9 +189,12 @@ export default function Home() {
                   <BenefitItem title="Improved Governance">
                     Smart contracts ensure rules are followed consistently
                   </BenefitItem>
-                  <BenefitItem title="Expanded Reach">Serve members regardless of geographical location</BenefitItem>
+                  <BenefitItem title="Expanded Reach">
+                    Serve members regardless of geographical location
+                  </BenefitItem>
                   <BenefitItem title="Enhanced Security">
-                    Blockchain technology provides immutable records and multi-signature protection
+                    Blockchain technology provides immutable records and
+                    multi-signature protection
                   </BenefitItem>
                 </CardContent>
               </Card>
@@ -154,7 +207,9 @@ export default function Home() {
                   <BenefitItem title="Greater Trust">
                     Verify all transactions and decisions on the blockchain
                   </BenefitItem>
-                  <BenefitItem title="Improved Access">Access financial services from anywhere, anytime</BenefitItem>
+                  <BenefitItem title="Improved Access">
+                    Access financial services from anywhere, anytime
+                  </BenefitItem>
                   <BenefitItem title="Direct Participation">
                     Vote on proposals and participate in governance directly
                   </BenefitItem>
@@ -162,13 +217,14 @@ export default function Home() {
                     Access DeFi services previously unavailable to SACCO members
                   </BenefitItem>
                   <BenefitItem title="Faster Services">
-                    Automated processes reduce waiting times for loans and other services
+                    Automated processes reduce waiting times for loans and other
+                    services
                   </BenefitItem>
                 </CardContent>
               </Card>
             </div>
             <div className="mt-12 flex justify-center">
-              <Card className="max-w-3xl">
+              {/* <Card className="max-w-3xl">
                 <CardHeader>
                   <CardTitle>Success Story</CardTitle>
                 </CardHeader>
@@ -187,18 +243,25 @@ export default function Home() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
           </div>
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        <section
+          id="how-it-works"
+          className="w-full py-12 md:py-24 lg:py-32 bg-background"
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Process</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">How Amana CE Works</h2>
+                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+                  Process
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                  How Amana CE Works
+                </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   A simple process to transform your SACCO operations
                 </p>
@@ -232,16 +295,22 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section
+          id="pricing"
+          className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Pricing</div>
+                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+                  Pricing
+                </div>
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                   Flexible Plans for Every SACCO
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Choose the plan that fits your organization's needs and scale as you grow
+                  Choose the plan that fits your organization's needs and scale
+                  as you grow
                 </p>
               </div>
             </div>
@@ -292,7 +361,8 @@ export default function Home() {
             </div>
             <div className="mt-12 text-center">
               <p className="text-muted-foreground">
-                All plans include a 0.5% fee on loan disbursements and 0.1-0.3% on specific financial transactions.
+                All plans include a 0.5% fee on loan disbursements and 0.1-0.3%
+                on specific financial transactions.
               </p>
             </div>
           </div>
@@ -303,58 +373,74 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Ecosystem</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Partners and Integrations</h2>
+                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+                  Ecosystem
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                  Partners and Integrations
+                </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Built on Cardano with connections to the broader DeFi ecosystem
+                  Built on Cardano with connections to the broader DeFi
+                  ecosystem
                 </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12">
               <div className="flex flex-wrap justify-center gap-8">
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
+                <a
+                  href="https://www.africanblockchamp.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="flex h-20 w-40 items-center justify-center rounded-lg border-l-2 bg-background p-4">
+                    <Image
+                      src="/Africa_BlockChain_Championship.png"
+                      width={180}
+                      height={100}
+                      alt="African Blockchain Championship"
+                      className="h-12"
+                    />
+                  </div>
+                </a>
+
+                <a
+                  href="https://www.directed.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                <div className="flex h-20 w-40 items-center justify-center rounded-lg border-l-2 bg-background p-4">
                   <Image
-                    src="/placeholder.svg?height=60&width=120"
+                    src="/DirectEd.png"
+                    width={180}
+                    height={100}
+                    alt="Directed"
+                    className="h-12"
+                  />
+                </div>
+                </a>
+
+                <a
+                  href="https://cardano.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                <div className="flex h-20 w-40 items-center justify-center rounded-lg border-l-2 bg-background p-4">
+                  <Image
+                    src="/Cardano.png"
                     width={120}
                     height={60}
                     alt="Cardano"
                     className="h-12"
                   />
                 </div>
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=120"
-                    width={120}
-                    height={60}
-                    alt="UNDP"
-                    className="h-12"
-                  />
-                </div>
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=120"
-                    width={120}
-                    height={60}
-                    alt="WOCCU"
-                    className="h-12"
-                  />
-                </div>
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=120"
-                    width={120}
-                    height={60}
-                    alt="ACCOSCA"
-                    className="h-12"
-                  />
-                </div>
+                </a>
               </div>
             </div>
           </div>
         </section>
 
         {/* About Us Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -406,10 +492,10 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Hackathon Form Section */}
-        <section id="hackathon" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+        {/* <section id="hackathon" className="w-full py-12 md:py-24 lg:py-32 bg-background">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -424,17 +510,25 @@ export default function Home() {
               <HackathonForm />
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Contact Section */}
-        <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section
+          id="contact"
+          className="w-full py-12 md:py-24 lg:py-32 bg-muted"
+        >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Contact</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Get in Touch</h2>
+                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">
+                  Contact
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                  Get in Touch
+                </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Have questions or interested in learning more? Reach out to our team.
+                  Have questions or interested in learning more? Reach out to
+                  our team.
                 </p>
               </div>
             </div>
@@ -450,7 +544,9 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="font-medium">John Ndigirigi</p>
-                      <p className="text-sm text-muted-foreground">Project Lead</p>
+                      <p className="text-sm text-muted-foreground">
+                        Project Lead
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -473,7 +569,9 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-sm text-muted-foreground">johnndigirigi01@gmail.com</p>
+                      <p className="text-sm text-muted-foreground">
+                        johnndigirigi01@gmail.com
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -564,33 +662,51 @@ export default function Home() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-4">
               <Link href="/" className="flex items-center space-x-2">
-                <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
+                <Image
+                  src="/Amana_logo.png?height=32&width=32"
+                  width={32}
+                  height={32}
+                  alt="Amana CE Logo"
+                />
                 <span className="inline-block font-bold">Amana CE</span>
               </Link>
               <p className="text-sm text-muted-foreground">
-                Transforming SACCO operations with blockchain technology on the Cardano platform.
+                Transforming SACCO operations with blockchain technology on the
+                Cardano platform.
               </p>
             </div>
             <div className="space-y-4">
               <h4 className="text-sm font-medium">Platform</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="#features" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="#features"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="#benefits" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="#benefits"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Benefits
                   </Link>
                 </li>
                 <li>
-                  <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="#how-it-works"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     How It Works
                   </Link>
                 </li>
                 <li>
-                  <Link href="#pricing" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="#pricing"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Pricing
                   </Link>
                 </li>
@@ -600,22 +716,34 @@ export default function Home() {
               <h4 className="text-sm font-medium">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/about" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/about"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/blog" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/blog"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link href="/careers" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/careers"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Careers
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/contact"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Contact
                   </Link>
                 </li>
@@ -625,17 +753,26 @@ export default function Home() {
               <h4 className="text-sm font-medium">Legal</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/terms" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/terms"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/privacy"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cookies" className="text-muted-foreground hover:text-foreground">
+                  <Link
+                    href="/cookies"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
                     Cookie Policy
                   </Link>
                 </li>
@@ -647,7 +784,10 @@ export default function Home() {
               &copy; {new Date().getFullYear()} Amana CE. All rights reserved.
             </p>
             <div className="flex space-x-4">
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -663,7 +803,10 @@ export default function Home() {
                   <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
                 </svg>
               </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -681,7 +824,10 @@ export default function Home() {
                   <circle cx="4" cy="4" r="2" />
                 </svg>
               </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
+              <Link
+                href="#"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -702,7 +848,7 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 function FeatureList() {
@@ -716,8 +862,9 @@ function FeatureList() {
           <div className="space-y-1">
             <h3 className="text-xl font-bold">Modular Architecture</h3>
             <p className="text-muted-foreground">
-              Adopt blockchain features incrementally, choosing specific components that address your most pressing
-              needs without requiring a complete system overhaul.
+              Adopt blockchain features incrementally, choosing specific
+              components that address your most pressing needs without requiring
+              a complete system overhaul.
             </p>
           </div>
         </div>
@@ -728,8 +875,8 @@ function FeatureList() {
           <div className="space-y-1">
             <h3 className="text-xl font-bold">Platform Independence</h3>
             <p className="text-muted-foreground">
-              Maintain ownership of your data and operations, avoiding vendor lock-in and ensuring continuity regardless
-              of platform changes.
+              Maintain ownership of your data and operations, avoiding vendor
+              lock-in and ensuring continuity regardless of platform changes.
             </p>
           </div>
         </div>
@@ -740,8 +887,9 @@ function FeatureList() {
           <div className="space-y-1">
             <h3 className="text-xl font-bold">Transparent Treasury</h3>
             <p className="text-muted-foreground">
-              Every financial transaction is recorded immutably on the blockchain with multi-signature approval for fund
-              disbursements and complete audit trails.
+              Every financial transaction is recorded immutably on the
+              blockchain with multi-signature approval for fund disbursements
+              and complete audit trails.
             </p>
           </div>
         </div>
@@ -754,8 +902,8 @@ function FeatureList() {
           <div className="space-y-1">
             <h3 className="text-xl font-bold">Programmable Governance</h3>
             <p className="text-muted-foreground">
-              Smart contracts automatically enforce rules, eliminating the need for trusted intermediaries and reducing
-              administrative overhead.
+              Smart contracts automatically enforce rules, eliminating the need
+              for trusted intermediaries and reducing administrative overhead.
             </p>
           </div>
         </div>
@@ -766,8 +914,9 @@ function FeatureList() {
           <div className="space-y-1">
             <h3 className="text-xl font-bold">Borderless Operation</h3>
             <p className="text-muted-foreground">
-              By operating on blockchain, SACCOs extend membership beyond geographical limitations, serving diaspora
-              communities and broader populations.
+              By operating on blockchain, SACCOs extend membership beyond
+              geographical limitations, serving diaspora communities and broader
+              populations.
             </p>
           </div>
         </div>
@@ -791,17 +940,24 @@ function FeatureList() {
           <div className="space-y-1">
             <h3 className="text-xl font-bold">Ecosystem Integration</h3>
             <p className="text-muted-foreground">
-              Built on Cardano, the platform enables SACCOs to seamlessly connect with the broader DeFi ecosystem while
-              maintaining regulatory compliance.
+              Built on Cardano, the platform enables SACCOs to seamlessly
+              connect with the broader DeFi ecosystem while maintaining
+              regulatory compliance.
             </p>
           </div>
         </div>
       </div>
     </>
-  )
+  );
 }
 
-function BenefitItem({ title, children }: { title: string; children: React.ReactNode }) {
+function BenefitItem({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex items-start gap-2">
       <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
@@ -810,10 +966,18 @@ function BenefitItem({ title, children }: { title: string; children: React.React
         <p className="text-sm text-muted-foreground">{children}</p>
       </div>
     </div>
-  )
+  );
 }
 
-function StepCard({ number, title, description }: { number: number; title: string; description: string }) {
+function StepCard({
+  number,
+  title,
+  description,
+}: {
+  number: number;
+  title: string;
+  description: string;
+}) {
   return (
     <Card>
       <CardContent className="p-6">
@@ -826,7 +990,7 @@ function StepCard({ number, title, description }: { number: number; title: strin
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function PricingCard({
@@ -839,17 +1003,21 @@ function PricingCard({
   buttonVariant = "default",
   highlighted = false,
 }: {
-  title: string
-  price: string
-  period?: string
-  description: string
-  features: string[]
-  buttonText: string
-  buttonVariant?: "default" | "outline"
-  highlighted?: boolean
+  title: string;
+  price: string;
+  period?: string;
+  description: string;
+  features: string[];
+  buttonText: string;
+  buttonVariant?: "default" | "outline";
+  highlighted?: boolean;
 }) {
   return (
-    <Card className={`flex flex-col ${highlighted ? "border-primary shadow-lg" : ""}`}>
+    <Card
+      className={`flex flex-col ${
+        highlighted ? "border-primary shadow-lg" : ""
+      }`}
+    >
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <div className="flex items-baseline gap-1">
@@ -874,5 +1042,5 @@ function PricingCard({
         </Button>
       </div>
     </Card>
-  )
+  );
 }
