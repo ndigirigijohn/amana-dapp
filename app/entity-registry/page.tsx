@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/auth-context"
+import MemberModal, { type MemberData } from "@/components/member-modal"
 
 export default function EntityRegistryPage() {
   const [activeTab, setActiveTab] = useState("setup")
@@ -31,6 +32,10 @@ export default function EntityRegistryPage() {
     votingThreshold: "51",
   })
 
+  const [members, setMembers] = useState<MemberData[]>([])
+  const [isAddingMember, setIsAddingMember] = useState(false)
+  const [editingMember, setEditingMember] = useState<MemberData | null>(null)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setEntityData({ ...entityData, [name]: value })
@@ -38,6 +43,19 @@ export default function EntityRegistryPage() {
 
   const handleSwitchChange = (name: string, checked: boolean) => {
     setEntityData({ ...entityData, [name]: checked })
+  }
+
+  const handleAddMember = (member: MemberData) => {
+    setMembers([...members, member])
+  }
+
+  const handleEditMember = (member: MemberData) => {
+    setMembers(members.map((m) => (m.id === member.id ? member : m)))
+    setEditingMember(null)
+  }
+
+  const handleRemoveMember = (id: string) => {
+    setMembers(members.filter((member) => member.id !== id))
   }
 
   const handleCreateEntity = async () => {
@@ -357,22 +375,31 @@ export default function EntityRegistryPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium">Add Initial Members</h3>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => setIsAddingMember(true)}>
                       + Add Member
                     </Button>
                   </div>
 
                   <div className="border rounded-md divide-y">
-                    {[
-                      {
-                        name: user?.name || "John Doe",
-                        email: user?.email || "john@example.com",
-                        role: "Administrator",
-                      },
-                      { name: "Jane Smith", email: "jane@example.com", role: "Treasurer" },
-                      { name: "Robert Johnson", email: "robert@example.com", role: "Secretary" },
-                    ].map((member, index) => (
-                      <div key={index} className="flex items-center justify-between p-4">
+                    {/* Add current user as default admin */}
+                    <div className="flex items-center justify-between p-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="rounded-full bg-primary/10 p-2">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{user?.name || "Current User"}</p>
+                          <p className="text-sm text-muted-foreground">{user?.email || "user@example.com"}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm text-muted-foreground">Administrator</span>
+                      </div>
+                    </div>
+
+                    {/* Display added members */}
+                    {members.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between p-4">
                         <div className="flex items-center space-x-4">
                           <div className="rounded-full bg-primary/10 p-2">
                             <Users className="h-5 w-5 text-primary" />
@@ -383,15 +410,24 @@ export default function EntityRegistryPage() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
-                          <span className="text-sm text-muted-foreground">{member.role}</span>
-                          {index > 0 && (
-                            <Button variant="ghost" size="sm">
+                          <span className="text-sm text-muted-foreground capitalize">{member.role}</span>
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="sm" onClick={() => setEditingMember(member)}>
+                              Edit
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleRemoveMember(member.id!)}>
                               Remove
                             </Button>
-                          )}
+                          </div>
                         </div>
                       </div>
                     ))}
+
+                    {members.length === 0 && (
+                      <div className="p-4 text-center text-muted-foreground">
+                        No additional members added yet. Click "Add Member" to add more members to your SACCO.
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -424,6 +460,16 @@ export default function EntityRegistryPage() {
           </TabsContent>
         </Tabs>
       </div>
+      {/* Member Modals */}
+      <MemberModal isOpen={isAddingMember} onClose={() => setIsAddingMember(false)} onSave={handleAddMember} />
+
+      <MemberModal
+        isOpen={!!editingMember}
+        onClose={() => setEditingMember(null)}
+        onSave={handleEditMember}
+        initialData={editingMember || {}}
+        isEditing={true}
+      />
     </div>
   )
 }
