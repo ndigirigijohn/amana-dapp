@@ -3,9 +3,90 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, ArrowRight, Shield, Users, BarChart3, Globe, Layers, FileText } from "lucide-react"
-import HackathonForm from "@/components/hackathon-form"
+import { CheckCircle, ArrowRight, Users } from "lucide-react"
 import MobileNav from "@/components/mobile-nav"
+
+// Define FeatureList Component
+const FeatureList = () => {
+  return (
+    <div>
+      {/* Add your feature items here */}
+      <p>Feature List Component</p>
+    </div>
+  )
+}
+
+// Define BenefitItem Component
+const BenefitItem = ({ title, children }: { title: string; children: React.ReactNode }) => {
+  return (
+    <div className="grid gap-1">
+      <h3 className="font-bold">{title}</h3>
+      <p className="text-sm text-muted-foreground">{children}</p>
+    </div>
+  )
+}
+
+// Define StepCard Component
+const StepCard = ({ number, title, description }: { number: number; title: string; description: string }) => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Step {number}</CardTitle>
+        <CardDescription>{title}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p>{description}</p>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Define PricingCard Component
+const PricingCard = ({
+  title,
+  price,
+  period,
+  description,
+  features,
+  buttonText,
+  buttonVariant,
+  highlighted,
+}: {
+  title: string
+  price: string
+  period?: string
+  description: string
+  features: string[]
+  buttonText: string
+  buttonVariant: "default" | "outline"
+  highlighted?: boolean
+}) => {
+  return (
+    <Card className={highlighted ? "border-2 border-primary" : ""}>
+      <CardHeader className="space-y-2.5">
+        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+        <CardDescription className="text-muted-foreground">
+          {price}
+          {period}
+        </CardDescription>
+        <CardDescription className="text-muted-foreground">{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <ul className="grid gap-2 text-sm">
+          {features.map((feature, index) => (
+            <li key={index} className="flex items-center">
+              <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+              {feature}
+            </li>
+          ))}
+        </ul>
+        <Button variant={buttonVariant} className="w-full">
+          {buttonText}
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function Home() {
   return (
@@ -15,7 +96,7 @@ export default function Home() {
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10">
             <Link href="/" className="flex items-center space-x-2">
-              <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
+              <Image src="/logo.png" width={32} height={32} alt="Amana CE Logo" />
               <span className="inline-block font-bold">Amana CE</span>
             </Link>
           </div>
@@ -67,11 +148,9 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" className="px-8" asChild>
-                    <Link href="/entity-registry">
-                      Get Started
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
+                  <Button size="lg" className="px-8">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                   <Button size="lg" variant="outline" className="px-8">
                     Request a Demo
@@ -79,7 +158,7 @@ export default function Home() {
                 </div>
               </div>
               <Image
-                src="/placeholder.svg?height=550&width=550"
+                src="/hero-image.png"
                 width={550}
                 height={550}
                 alt="Amana CE Platform"
@@ -167,6 +246,7 @@ export default function Home() {
                 </CardContent>
               </Card>
             </div>
+            {/* Success Story - Commented Out
             <div className="mt-12 flex justify-center">
               <Card className="max-w-3xl">
                 <CardHeader>
@@ -189,6 +269,7 @@ export default function Home() {
                 </CardContent>
               </Card>
             </div>
+            */}
           </div>
         </section>
 
@@ -312,119 +393,117 @@ export default function Home() {
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12">
               <div className="flex flex-wrap justify-center gap-8">
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
+                <a
+                  href="https://www.africanblockchamp.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4"
+                >
                   <Image
-                    src="/placeholder.svg?height=60&width=120"
+                    src="/africa-blockchain-championship-logo.png"
                     width={120}
                     height={60}
-                    alt="Cardano"
+                    alt="Africa Blockchain Championship"
                     className="h-12"
                   />
-                </div>
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=120"
-                    width={120}
-                    height={60}
-                    alt="UNDP"
-                    className="h-12"
-                  />
-                </div>
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=120"
-                    width={120}
-                    height={60}
-                    alt="WOCCU"
-                    className="h-12"
-                  />
-                </div>
-                <div className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4">
-                  <Image
-                    src="/placeholder.svg?height=60&width=120"
-                    width={120}
-                    height={60}
-                    alt="ACCOSCA"
-                    className="h-12"
-                  />
-                </div>
+                </a>
+                <a
+                  href="https://www.directed.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4"
+                >
+                  <Image src="/directed-logo.png" width={120} height={60} alt="Direct Ed" className="h-12" />
+                </a>
+                <a
+                  href="https://cardano.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-20 w-40 items-center justify-center rounded-lg border bg-background p-4"
+                >
+                  <Image src="/cardano-logo.png" width={120} height={60} alt="Cardano" className="h-12" />
+                </a>
               </div>
             </div>
           </div>
         </section>
 
         {/* About Us Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">About Us</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Meet the Team Behind Amana CE</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  A dedicated team committed to transforming financial cooperatives in Africa
-                </p>
+        {/* 
+<section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+  <div className="container px-4 md:px-6">
+    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+      <div className="space-y-2">
+        <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">About Us</div>
+        <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Meet the Team Behind Amana CE</h2>
+        <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+          A dedicated team committed to transforming financial cooperatives in Africa
+        </p>
+      </div>
+    </div>
+    <div className="mx-auto grid max-w-5xl items-center gap-6 py-12">
+      <div className="grid gap-8 md:grid-cols-2">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="rounded-full bg-muted h-24 w-24 flex items-center justify-center mb-4">
+                <Users className="h-12 w-12" />
               </div>
+              <h3 className="text-xl font-bold">John Ndigirigi</h3>
+              <p className="text-sm text-muted-foreground mb-4">Project Lead</p>
+              <p className="text-sm">
+                Leading the vision and strategy for Amana CE, with extensive experience in blockchain and
+                financial inclusion projects.
+              </p>
             </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12">
-              <div className="grid gap-8 md:grid-cols-2">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="rounded-full bg-muted h-24 w-24 flex items-center justify-center mb-4">
-                        <Users className="h-12 w-12" />
-                      </div>
-                      <h3 className="text-xl font-bold">John Ndigirigi</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Project Lead</p>
-                      <p className="text-sm">
-                        Leading the vision and strategy for Amana CE, with extensive experience in blockchain and
-                        financial inclusion projects.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="rounded-full bg-muted h-24 w-24 flex items-center justify-center mb-4">
-                        <Users className="h-12 w-12" />
-                      </div>
-                      <h3 className="text-xl font-bold">The Amana Team</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Cross-functional Experts</p>
-                      <p className="text-sm">
-                        Our team combines expertise in blockchain development, full-stack development, and UI/UX design
-                        to create innovative solutions.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="rounded-full bg-muted h-24 w-24 flex items-center justify-center mb-4">
+                <Users className="h-12 w-12" />
               </div>
-              <div className="mt-8 text-center">
-                <Link href="/about" className="text-primary hover:underline inline-flex items-center">
-                  Learn more about our team and mission
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
+              <h3 className="text-xl font-bold">The Amana Team</h3>
+              <p className="text-sm text-muted-foreground mb-4">Cross-functional Experts</p>
+              <p className="text-sm">
+                Our team combines expertise in blockchain development, full-stack development, and UI/UX design
+                to create innovative solutions.
+              </p>
             </div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="mt-8 text-center">
+        <Link href="/about" className="text-primary hover:underline inline-flex items-center">
+          Learn more about our team and mission
+          <ArrowRight className="ml-1 h-4 w-4" />
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
+*/}
 
         {/* Hackathon Form Section */}
-        <section id="hackathon" className="w-full py-12 md:py-24 lg:py-32 bg-background">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Hackathon</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Amana CE Hackathon Submission</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our project submission for the Cardano Hackathon
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto max-w-3xl py-12">
-              <HackathonForm />
-            </div>
-          </div>
-        </section>
+        {/*
+<section id="hackathon" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+  <div className="container px-4 md:px-6">
+    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+      <div className="space-y-2">
+        <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Hackathon</div>
+        <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Amana CE Hackathon Submission</h2>
+        <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+          Our project submission for the Cardano Hackathon
+        </p>
+      </div>
+    </div>
+    <div className="mx-auto max-w-3xl py-12">
+      <HackathonForm />
+    </div>
+  </div>
+</section>
+*/}
 
         {/* Contact Section */}
         <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
@@ -564,7 +643,7 @@ export default function Home() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-4">
               <Link href="/" className="flex items-center space-x-2">
-                <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
+                <Image src="/logo.png" width={32} height={32} alt="Amana CE Logo" />
                 <span className="inline-block font-bold">Amana CE</span>
               </Link>
               <p className="text-sm text-muted-foreground">
@@ -694,7 +773,7 @@ export default function Home() {
                   strokeLinejoin="round"
                   className="h-5 w-5"
                 >
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0" />
                 </svg>
               </Link>
             </div>
@@ -702,177 +781,5 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  )
-}
-
-function FeatureList() {
-  return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Layers className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold">Modular Architecture</h3>
-            <p className="text-muted-foreground">
-              Adopt blockchain features incrementally, choosing specific components that address your most pressing
-              needs without requiring a complete system overhaul.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Shield className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold">Platform Independence</h3>
-            <p className="text-muted-foreground">
-              Maintain ownership of your data and operations, avoiding vendor lock-in and ensuring continuity regardless
-              of platform changes.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <BarChart3 className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold">Transparent Treasury</h3>
-            <p className="text-muted-foreground">
-              Every financial transaction is recorded immutably on the blockchain with multi-signature approval for fund
-              disbursements and complete audit trails.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="space-y-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <FileText className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold">Programmable Governance</h3>
-            <p className="text-muted-foreground">
-              Smart contracts automatically enforce rules, eliminating the need for trusted intermediaries and reducing
-              administrative overhead.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <Globe className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold">Borderless Operation</h3>
-            <p className="text-muted-foreground">
-              By operating on blockchain, SACCOs extend membership beyond geographical limitations, serving diaspora
-              communities and broader populations.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5 text-primary"
-            >
-              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-            </svg>
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold">Ecosystem Integration</h3>
-            <p className="text-muted-foreground">
-              Built on Cardano, the platform enables SACCOs to seamlessly connect with the broader DeFi ecosystem while
-              maintaining regulatory compliance.
-            </p>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
-
-function BenefitItem({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-2">
-      <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
-      <div>
-        <h4 className="font-medium">{title}</h4>
-        <p className="text-sm text-muted-foreground">{children}</p>
-      </div>
-    </div>
-  )
-}
-
-function StepCard({ number, title, description }: { number: number; title: string; description: string }) {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold mb-4">
-            {number}
-          </div>
-          <h3 className="text-xl font-bold mb-2">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function PricingCard({
-  title,
-  price,
-  period = "",
-  description,
-  features,
-  buttonText,
-  buttonVariant = "default",
-  highlighted = false,
-}: {
-  title: string
-  price: string
-  period?: string
-  description: string
-  features: string[]
-  buttonText: string
-  buttonVariant?: "default" | "outline"
-  highlighted?: boolean
-}) {
-  return (
-    <Card className={`flex flex-col ${highlighted ? "border-primary shadow-lg" : ""}`}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-bold">{price}</span>
-          <span className="text-sm text-muted-foreground">{period}</span>
-        </div>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <ul className="space-y-2">
-          {features.map((feature, i) => (
-            <li key={i} className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-primary" />
-              <span className="text-sm">{feature}</span>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-      <div className="p-6 pt-0 mt-auto">
-        <Button variant={buttonVariant} className="w-full">
-          {buttonText}
-        </Button>
-      </div>
-    </Card>
   )
 }
