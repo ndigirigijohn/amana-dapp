@@ -67,9 +67,11 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" className="px-8">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button size="lg" className="px-8" asChild>
+                    <Link href="/entity-registry">
+                      Get Started
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="px-8">
                     Request a Demo
