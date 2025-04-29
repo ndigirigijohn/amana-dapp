@@ -46,7 +46,7 @@ export default function SignInPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <Link href="/" className="mb-8 flex items-center gap-2">
-        <Image src="/logo.png" width={32} height={32} alt="Amana CE Logo" />
+        <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
         <span className="text-xl font-bold">Amana CE</span>
       </Link>
 
