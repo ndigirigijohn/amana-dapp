@@ -37,14 +37,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Button>
             </SheetTrigger>
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" width={32} height={32} alt="Amana CE Logo" />
+              <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
               <span className="font-bold">Amana CE</span>
             </Link>
           </header>
           <SheetContent side="left" className="w-72 p-0">
             <div className="flex flex-col gap-2 p-6">
               <Link href="/" className="flex items-center gap-2">
-                <Image src="/logo.png" width={32} height={32} alt="Amana CE Logo" />
+                <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
                 <span className="font-bold">Amana CE</span>
               </Link>
               <p className="text-sm text-muted-foreground">
@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="hidden border-r bg-muted/40 lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
           <div className="flex flex-col gap-2 p-6">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" width={32} height={32} alt="Amana CE Logo" />
+              <Image src="/placeholder.svg?height=32&width=32" width={32} height={32} alt="Amana CE Logo" />
               <span className="font-bold">Amana CE</span>
             </Link>
             <p className="text-sm text-muted-foreground">
