@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/components/common/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/common/sheet"
 import { Menu } from "lucide-react"
 
 export default function MobileNav() {

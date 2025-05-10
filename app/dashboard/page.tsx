@@ -1,7 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/common/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/common/tabs"
 import { useAuth } from "@/contexts/auth-context"
 import { BarChart3, Users, CreditCard, ArrowUpRight } from "lucide-react"
 

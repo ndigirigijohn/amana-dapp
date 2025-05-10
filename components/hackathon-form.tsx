@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/common/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/common/tabs"
 
 export default function HackathonForm() {
   const [activeTab, setActiveTab] = useState("basic")
