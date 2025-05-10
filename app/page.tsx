@@ -2,6 +2,8 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import  WalletConnect  from "@/components/WalletConnect";
+
 import {
   Card,
   CardContent,
@@ -72,12 +74,8 @@ export default function Home() {
               >
                 Contact
               </Link>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>
-              <Button variant="default" size="sm" asChild>
-                <Link href="/auth/signup">Sign Up</Link>
-              </Button>
+              <WalletConnect/>
+         
             </nav>
 
             {/* Mobile Navigation - Hamburger Menu */}
