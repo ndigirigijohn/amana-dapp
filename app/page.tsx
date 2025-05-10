@@ -1,7 +1,7 @@
 import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/ui/button";
 import  WalletConnect  from "@/components/WalletConnect";
 
 import {
@@ -10,7 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/common/card";
+} from "@/components/ui/card";
 import {
   CheckCircle,
   ArrowRight,
