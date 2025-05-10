@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BrowserWallet, type Asset } from '@meshsdk/core';
+import { BrowserWallet, type Asset, deserializeAddress } from '@meshsdk/core';
 
 type Wallet = {
   name: string;
@@ -12,6 +12,7 @@ type Wallet = {
 type ConnectedWallet = {
   name: string;
   address: string;
+  verificationKeyHash: string;
   balance: {
     lovelace: string;
     assets: number;
@@ -68,6 +69,10 @@ const WalletConnect = () => {
       const addresses = await wallet.getUsedAddresses();
       const firstAddress = addresses.length > 0 ? addresses[0] : (await wallet.getUnusedAddresses())[0];
       
+      // Get verification key hash using deserializeAddress
+      const { pubKeyHash } = deserializeAddress(firstAddress);
+      console.log('Verification Key Hash:', pubKeyHash);
+      
       let lovelace = "0";
       let assets: Asset[] = [];
       
@@ -107,15 +112,17 @@ const WalletConnect = () => {
       setConnectedWallet({
         name: walletName,
         address: firstAddress,
+        verificationKeyHash: pubKeyHash, // Store VKH in state
         balance: {
           lovelace: (parseInt(lovelace || "0") / 1000000).toFixed(2), // Convert to ADA
           assets: assets.length
         }
       });
 
-      // Log some wallet info
+      // Log wallet info
       console.log('Connected to wallet:', walletName);
       console.log('Wallet address:', firstAddress);
+      console.log('Verification Key Hash:', pubKeyHash);
       console.log('Balance:', (parseInt(lovelace || "0") / 1000000).toFixed(2), 'ADA');
       console.log('Assets:', assets.length);
       
@@ -142,6 +149,11 @@ const WalletConnect = () => {
   const truncateAddress = (address: string) => {
     if (!address) return '';
     return `${address.substring(0, 8)}...${address.substring(address.length - 4)}`;
+  };
+
+  const truncateVKH = (vkh: string) => {
+    if (!vkh) return '';
+    return `${vkh.substring(0, 8)}...${vkh.substring(vkh.length - 8)}`;
   };
 
   return (
@@ -233,12 +245,36 @@ const WalletConnect = () => {
                     <span className="font-medium">Wallet</span>
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">{connectedWallet.name}</span>
                   </div>
+                  
                   <div className="space-y-2">
                     <span className="font-medium">Address</span>
                     <div className="bg-muted/50 p-3 rounded-lg text-sm break-all font-mono border">
                       {connectedWallet.address}
                     </div>
                   </div>
+                  
+                  <div className="space-y-2">
+                    <span className="font-medium">Verification Key Hash</span>
+                    <div className="bg-muted/50 p-3 rounded-lg text-sm break-all font-mono border">
+                      {connectedWallet.verificationKeyHash}
+                    </div>
+                    <div className="flex justify-end">
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(connectedWallet.verificationKeyHash);
+                          alert("Verification Key Hash copied to clipboard!");
+                        }}
+                        className="text-primary text-xs flex items-center hover:underline"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                        </svg>
+                        Copy to clipboard
+                      </button>
+                    </div>
+                  </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-lg bg-muted/50 border space-y-1 text-center">
                       <span className="text-sm font-medium text-muted-foreground">Balance</span>
