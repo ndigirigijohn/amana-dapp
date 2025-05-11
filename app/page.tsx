@@ -33,11 +33,11 @@ export default function Home() {
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/Amana_logo.png?height=32&width=32"
-                width={32}
-                height={32}
+                width={52}
+                height={52}
                 alt="Amana CE Logo"
               />
-              <span className="inline-block font-bold">Amana CE</span>
+              <span className="inline-block text-xl font-bold">Amana CE</span>
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
