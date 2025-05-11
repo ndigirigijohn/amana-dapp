@@ -17,7 +17,16 @@ type ConnectedWallet = {
     lovelace: string;
     assets: number;
   };
+  lastConnected: number;
 }
+
+const STORAGE_KEY = 'amana_wallet_connection';
+
+// Helper functions
+const truncateAddress = (address: string): string => {
+  if (!address) return '';
+  return `${address.substring(0, 8)}...${address.substring(address.length - 4)}`;
+};
 
 const WalletConnect = () => {
   const [availableWallets, setAvailableWallets] = useState<Wallet[]>([]);
@@ -25,13 +34,21 @@ const WalletConnect = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [walletInstance, setWalletInstance] = useState<any>(null);
 
-  // Check for available wallets on component mount
+  // Check for available wallets and saved connection on component mount
   useEffect(() => {
-    const getWallets = async () => {
+    const initialize = async () => {
+      // Check for saved wallet connection
+      const savedConnection = getSavedWalletConnection();
+      if (savedConnection) {
+        console.log("Found saved wallet connection:", savedConnection.name);
+        setConnectedWallet(savedConnection);
+      }
+
+      // Get available wallets
       try {
         const wallets = await BrowserWallet.getAvailableWallets();
+        console.log("Available wallets:", wallets);
         setAvailableWallets(wallets);
       } catch (error) {
         console.error('Error fetching available wallets:', error);
@@ -39,50 +56,59 @@ const WalletConnect = () => {
       }
     };
 
-    getWallets();
-
-    // Check for persisted wallet connection
-    const checkPersistedConnection = async () => {
-      const savedWalletName = localStorage.getItem('connectedWalletName');
-      if (savedWalletName) {
-        try {
-          await connectWallet(savedWalletName);
-        } catch (error) {
-          console.error('Failed to reconnect to saved wallet:', error);
-          localStorage.removeItem('connectedWalletName');
-        }
-      }
-    };
-
-    checkPersistedConnection();
+    initialize();
   }, []);
 
+  // Retrieve saved wallet connection from local storage
+  const getSavedWalletConnection = (): ConnectedWallet | null => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (!savedData) return null;
+      return JSON.parse(savedData);
+    } catch (error) {
+      console.error('Error reading saved wallet data:', error);
+      return null;
+    }
+  };
+
+  // Save wallet connection to local storage
+  const saveWalletConnection = (wallet: ConnectedWallet) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(wallet));
+    } catch (error) {
+      console.error('Error saving wallet connection:', error);
+    }
+  };
+
+  // Connect to wallet
   const connectWallet = async (walletName: string) => {
+    console.log(`Attempting to connect to wallet: ${walletName}`);
     setIsConnecting(true);
     setErrorMessage(null);
     
     try {
+      // 1. Enable the wallet
       const wallet = await BrowserWallet.enable(walletName);
-      setWalletInstance(wallet);
       
-      // Get wallet data to display
+      // 2. Get wallet address
       const addresses = await wallet.getUsedAddresses();
       const firstAddress = addresses.length > 0 ? addresses[0] : (await wallet.getUnusedAddresses())[0];
       
-      // Get verification key hash using deserializeAddress
+      // 3. Get verification key hash
       const { pubKeyHash } = deserializeAddress(firstAddress);
       console.log('Verification Key Hash:', pubKeyHash);
       
+      // 4. Get wallet balance information
       let lovelace = "0";
       let assets: Asset[] = [];
       
       try {
-        // Get lovelace balance
+        // Try to get ADA balance
         lovelace = await wallet.getLovelace();
       } catch (error) {
         console.error('Error fetching lovelace:', error);
         
-        // Alternative approach if getLovelace fails
+        // Fallback approach
         try {
           const balance = await wallet.getBalance();
           const lovelaceAsset = balance.find(asset => asset.unit === 'lovelace');
@@ -95,12 +121,12 @@ const WalletConnect = () => {
       }
       
       try {
-        // Get assets
+        // Try to get assets
         assets = await wallet.getAssets();
       } catch (error) {
         console.error('Error fetching assets:', error);
         
-        // Alternative approach if getAssets fails
+        // Fallback approach
         try {
           const balance = await wallet.getBalance();
           assets = balance.filter(asset => asset.unit !== 'lovelace');
@@ -109,28 +135,25 @@ const WalletConnect = () => {
         }
       }
 
-      setConnectedWallet({
+      // 5. Create wallet info object
+      const walletInfo: ConnectedWallet = {
         name: walletName,
         address: firstAddress,
-        verificationKeyHash: pubKeyHash, // Store VKH in state
+        verificationKeyHash: pubKeyHash,
         balance: {
           lovelace: (parseInt(lovelace || "0") / 1000000).toFixed(2), // Convert to ADA
           assets: assets.length
-        }
-      });
+        },
+        lastConnected: Date.now()
+      };
 
-      // Log wallet info
-      console.log('Connected to wallet:', walletName);
-      console.log('Wallet address:', firstAddress);
-      console.log('Verification Key Hash:', pubKeyHash);
-      console.log('Balance:', (parseInt(lovelace || "0") / 1000000).toFixed(2), 'ADA');
-      console.log('Assets:', assets.length);
+      // 6. Update state and save
+      setConnectedWallet(walletInfo);
+      saveWalletConnection(walletInfo);
       
-      // Save connection
-      localStorage.setItem('connectedWalletName', walletName);
-      
-      // Close modal
+      // 7. Close modal
       setIsModalOpen(false);
+      console.log('Wallet connected successfully:', walletInfo);
     } catch (error) {
       console.error('Error connecting to wallet:', error);
       setErrorMessage(`Failed to connect to ${walletName}. ${error instanceof Error ? error.message : 'Please try again.'}`);
@@ -139,21 +162,11 @@ const WalletConnect = () => {
     }
   };
 
+  // Disconnect wallet
   const disconnectWallet = () => {
     setConnectedWallet(null);
-    setWalletInstance(null);
-    localStorage.removeItem('connectedWalletName');
+    localStorage.removeItem(STORAGE_KEY);
     console.log('Wallet disconnected');
-  };
-
-  const truncateAddress = (address: string) => {
-    if (!address) return '';
-    return `${address.substring(0, 8)}...${address.substring(address.length - 4)}`;
-  };
-
-  const truncateVKH = (vkh: string) => {
-    if (!vkh) return '';
-    return `${vkh.substring(0, 8)}...${vkh.substring(vkh.length - 8)}`;
   };
 
   return (
