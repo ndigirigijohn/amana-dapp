@@ -21,15 +21,40 @@ import {
   CheckCircle, 
   FileText, 
   Settings, 
-  Calendar
+  Calendar,
+  MoreVertical,
+  Trash,
+  Edit,
+  Download,
+  AlertCircle
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function EntityPage() {
   const [entityData, setEntityData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Load entity data from local storage
@@ -50,6 +75,24 @@ export default function EntityPage() {
 
     loadEntityData();
   }, []);
+
+  const clearEntity = () => {
+    try {
+      // Remove entity from local storage
+      localStorage.removeItem('amana_current_entity');
+      // Also remove from entities list if it exists there
+      const storedEntities = localStorage.getItem('amana_entities');
+      if (storedEntities) {
+        const entities = JSON.parse(storedEntities);
+        const updatedEntities = entities.filter((entity: any) => entity.id !== entityData.id);
+        localStorage.setItem('amana_entities', JSON.stringify(updatedEntities));
+      }
+      // Redirect to entity registry
+      router.push('/entity-registry');
+    } catch (error) {
+      console.error("Error clearing entity data:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -83,11 +126,40 @@ export default function EntityPage() {
     <div className="space-y-6">
       {/* Entity overview card */}
       <Card>
-        <CardHeader>
-          <CardTitle>Entity Overview</CardTitle>
-          <CardDescription>
-            Details and statistics about your SACCO entity
-          </CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between">
+          <div>
+            <CardTitle>Entity Overview</CardTitle>
+            <CardDescription>
+              Details and statistics about your SACCO entity
+            </CardDescription>
+          </div>
+          {/* Settings dropdown menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">Entity settings</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <Edit className="h-4 w-4" />
+                <span>Edit Entity</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <Download className="h-4 w-4" />
+                <span>Export Entity Data</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash className="h-4 w-4" />
+                <span>Clear Entity</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -237,6 +309,31 @@ export default function EntityPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Confirmation Dialog for Clear Entity */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Clear Entity Data
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to clear this entity? This action will remove all local data
+              related to this SACCO entity. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={clearEntity}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Clear Entity
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
