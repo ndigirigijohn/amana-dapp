@@ -2,7 +2,6 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import  WalletConnect  from "@/components/WalletConnect";
 
 import {
   Card,
@@ -21,68 +20,20 @@ import {
   Layers,
   FileText,
 } from "lucide-react";
+import NavBar from "@/components/NavBar";
 import MobileNav from "@/components/mobile-nav";
+
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-          <div className="flex gap-6 md:gap-10">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src="/Amana_logo.png?height=32&width=32"
-                width={52}
-                height={52}
-                alt="Amana CE Logo"
-              />
-              <span className="inline-block text-xl font-bold">Amana CE</span>
-            </Link>
-          </div>
-          <div className="flex flex-1 items-center justify-end space-x-4">
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
-              <Link
-                href="#features"
-                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
-              >
-                Features
-              </Link>
-              <Link
-                href="#benefits"
-                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
-              >
-                Benefits
-              </Link>
-              <Link
-                href="#how-it-works"
-                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
-              >
-                How It Works
-              </Link>
-              <Link
-                href="#pricing"
-                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="#contact"
-                className="text-sm font-medium transition-colors hover:text-primary px-3 py-2"
-              >
-                Contact
-              </Link>
-              <WalletConnect/>
-         
-            </nav>
 
-            {/* Mobile Navigation - Hamburger Menu */}
-            <MobileNav />
-          </div>
-        </div>
-      </header>
+      <NavBar />
 
+       <MobileNav />
+       </header>
       <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-background to-muted">
@@ -219,28 +170,6 @@ export default function Home() {
                   </BenefitItem>
                 </CardContent>
               </Card>
-            </div>
-            <div className="mt-12 flex justify-center">
-              {/* <Card className="max-w-3xl">
-                <CardHeader>
-                  <CardTitle>Success Story</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <blockquote className="italic border-l-4 pl-4 border-primary/50">
-                    "Implementing Amana CE has transformed our operations. We've seen a 40% reduction in administrative
-                    costs and our membership has grown by 25% as we can now serve members across the country."
-                  </blockquote>
-                  <div className="mt-4 flex items-center">
-                    <div className="rounded-full bg-muted h-10 w-10 flex items-center justify-center mr-3">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Sarah Mwangi</p>
-                      <p className="text-sm text-muted-foreground">CEO, Umoja SACCO</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card> */}
             </div>
           </div>
         </section>
@@ -436,78 +365,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About Us Section */}
-        {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">About Us</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Meet the Team Behind Amana CE</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  A dedicated team committed to transforming financial cooperatives in Africa
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12">
-              <div className="grid gap-8 md:grid-cols-2">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="rounded-full bg-muted h-24 w-24 flex items-center justify-center mb-4">
-                        <Users className="h-12 w-12" />
-                      </div>
-                      <h3 className="text-xl font-bold">John Ndigirigi</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Project Lead</p>
-                      <p className="text-sm">
-                        Leading the vision and strategy for Amana CE, with extensive experience in blockchain and
-                        financial inclusion projects.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="rounded-full bg-muted h-24 w-24 flex items-center justify-center mb-4">
-                        <Users className="h-12 w-12" />
-                      </div>
-                      <h3 className="text-xl font-bold">The Amana Team</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Cross-functional Experts</p>
-                      <p className="text-sm">
-                        Our team combines expertise in blockchain development, full-stack development, and UI/UX design
-                        to create innovative solutions.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="mt-8 text-center">
-                <Link href="/about" className="text-primary hover:underline inline-flex items-center">
-                  Learn more about our team and mission
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
-        {/* Hackathon Form Section */}
-        {/* <section id="hackathon" className="w-full py-12 md:py-24 lg:py-32 bg-background">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Hackathon</div>
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Amana CE Hackathon Submission</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our project submission for the Cardano Hackathon
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto max-w-3xl py-12">
-              <HackathonForm />
-            </div>
-          </div>
-        </section> */}
 
         {/* Contact Section */}
         <section
