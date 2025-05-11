@@ -21,7 +21,6 @@ import {
   Layers,
   FileText,
 } from "lucide-react";
-import HackathonForm from "@/components/hackathon-form";
 import MobileNav from "@/components/mobile-nav";
 
 export default function Home() {

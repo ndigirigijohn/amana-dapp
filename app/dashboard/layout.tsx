@@ -184,7 +184,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             
             {/* Sub-navigation for selected main item */}
-            {activeMainNav?.subItems.length > 0 && (
+            {/* Fixed the error by adding a conditional check for activeMainNav and its subItems */}
+            {activeMainNav && activeMainNav.subItems && activeMainNav.subItems.length > 0 && (
               <nav className="ml-8 hidden md:flex items-center space-x-4">
                 {activeMainNav.subItems.map((subItem) => {
                   const isActive = pathname === subItem.href;
