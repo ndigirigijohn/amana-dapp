@@ -11,9 +11,21 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.9.1(react-hook-form@7.54.1(react@19.0.0))
+      '@lucid-evolution/core-types':
+        specifier: ^0.1.22
+        version: 0.1.22
+      '@lucid-evolution/lucid':
+        specifier: ^0.4.27
+        version: 0.4.27(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(fast-check@3.23.2)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      '@lucid-evolution/plutus':
+        specifier: ^0.1.29
+        version: 0.1.29
+      '@lucid-evolution/utils':
+        specifier: ^0.1.65
+        version: 0.1.65(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
       '@meshsdk/core':
         specifier: 1.9.0-beta.43
-        version: 1.9.0-beta.43(@babel/core@7.27.1)(@bufbuild/protobuf@1.10.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17)(utf-8-validate@6.0.5)
+        version: 1.9.0-beta.43(@babel/core@7.27.1)(@bufbuild/protobuf@1.10.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)))(utf-8-validate@6.0.5)
       '@meshsdk/wallet':
         specifier: 1.9.0-beta.43
         version: 1.9.0-beta.43(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
@@ -160,7 +172,10 @@ importers:
         version: 2.5.5
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.17)
+        version: 1.0.7(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)))
+      ts-dotenv:
+        specifier: ^0.9.1
+        version: 0.9.1
       vaul:
         specifier: ^0.9.6
         version: 0.9.6(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -169,7 +184,7 @@ importers:
         version: 3.24.1
     devDependencies:
       '@types/node':
-        specifier: ^22
+        specifier: ^22.0.0
         version: 22.0.0
       '@types/react':
         specifier: ^19
@@ -182,9 +197,12 @@ importers:
         version: 8.0.0
       tailwindcss:
         specifier: ^3.4.17
-        version: 3.4.17
+        version: 3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2))
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@22.0.0)(typescript@5.0.2)
       typescript:
-        specifier: ^5
+        specifier: ^5.0.2
         version: 5.0.2
 
 packages:
@@ -196,6 +214,18 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
+
+  '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-2':
+    resolution: {integrity: sha512-sSPPjO1Zye82YVqrUGIKrli/Zt2pPkZkQd/jv9k6AzjIZdNPD3hvuB2yH6RHeZUO8+K57bu9r7Rlyf7VGbhhTQ==}
+
+  '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-3':
+    resolution: {integrity: sha512-EP5Kr21xPtfEuCM3lR5tCIUQpMQ4Moisig8zD9BqUmBhQr/2ddxuE+MWhBF6tqH1AepzeXqRuTD1ozvdRn49Bw==}
+
+  '@anastasia-labs/cardano-multiplatform-lib-nodejs@6.0.2-2':
+    resolution: {integrity: sha512-KLYHyJWtFsTUUbIVz9dn5GiCbI4Mrx5mRpDWXa3lVLWFKok6AkvYlyHk4OH4NNa4JBerrHTB6ZJrk75UgKAaMA==}
+
+  '@anastasia-labs/cardano-multiplatform-lib-nodejs@6.0.2-3':
+    resolution: {integrity: sha512-Jy7QKahRQJgX6OFeuQvPXO0ejKfT9cQ8m3PFLBhbM04jjzFnaxlJJJ5+7qNHe3xdy40fMbMMe2SgAYPJ4gZ2Xw==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -365,6 +395,36 @@ packages:
   '@cardanosolutions/json-bigint@1.0.1':
     resolution: {integrity: sha512-mbYL6jtHqMFCZnTFhmkmoeDzHMBino0gMiGQnOJE7CwzZzkK2HCpH0MTBk+84QDadMEGX7iFt7uB+levm1a+bQ==}
 
+  '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
+    resolution: {integrity: sha512-P7swiOAdF7aSi0H+tHtHtr6zrpF3aAq/W9FXx5HektRvLTM2O89xCyXF3pk7pLc7QpaY7AoaE8UowVf9QBdh3w==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
+    resolution: {integrity: sha512-1liF6fgowph0JxBbYnAS7ZlqNYLf000Qnj4KjqPNW4GViKrEql2MgZnAsExhY9LSy8dnvA4C0qHEBgPrll0z0w==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
+    resolution: {integrity: sha512-rQvhNmDuhjTVXSPFLolmQ47/ydGOFXtbR7+wgkSY0bdOxCFept1hvg59uiLPT2fVDuJFuEy16EImo5tE2x3RsQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-linux-arm@2.2.0':
+    resolution: {integrity: sha512-QeBcBXk964zOytiedMPQNZr7sg0TNavZeuUCD6ON4vEOU/25+pLhNN6EDIKJ9VLTKaZ7K7EaAriyYQ1NQ05s/Q==}
+    cpu: [arm]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-linux-x64@2.2.0':
+    resolution: {integrity: sha512-cWLAWtT3kNLHSvP4RKDzSTX9o0wvQEEAj4SKvhWuOVZxiDAeQazr9A+PSiRILK1VYMLeDml89ohxCnUNQNQNCw==}
+    cpu: [x64]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-win32-x64@2.2.0':
+    resolution: {integrity: sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==}
+    cpu: [x64]
+    os: [win32]
+
   '@chainsafe/is-ip@2.1.0':
     resolution: {integrity: sha512-KIjt+6IfysQ4GCv66xihEitBjvhU/bixbbbFxdJ1sqCp4uJ0wuZiYBPhksZoy4lfaF0k9cwNzY5upEW/VWdw3w==}
 
@@ -389,8 +449,33 @@ packages:
     peerDependencies:
       '@bufbuild/protobuf': ^1.4.2
 
+  '@cspotcode/source-map-support@0.8.1':
+    resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
+    engines: {node: '>=12'}
+
+  '@effect/platform@0.71.7':
+    resolution: {integrity: sha512-Ttw8OhbcP1x5cPgcX4VdnDSWrskVdUrf9bO3eDd++TTcQzEiYVu9GZJaSMvz6Yqzfzt+1tIKoKi2jp6dLdJ9dg==}
+    peerDependencies:
+      effect: ^3.11.10
+
+  '@effect/schema@0.66.16':
+    resolution: {integrity: sha512-sT/k5NOgKslGPzs3DUaCFuM6g2JQoIIT8jpwEorAZooplPIMK2xIspr7ECz6pp6Dc7Wz/ppXGk7HVyGZQsIYEQ==}
+    deprecated: this package has been merged into the main effect package
+    peerDependencies:
+      effect: ^3.1.3
+      fast-check: ^3.13.2
+
+  '@effect/schema@0.68.27':
+    resolution: {integrity: sha512-/rmIb+4QaQTecdTfeYSZtNikIV+BeIbYDl/hpgBTaS96en7pKNW5hcygFQhdocjKguIL7Y/be+oUrVafWV60ew==}
+    deprecated: this package has been merged into the main effect package
+    peerDependencies:
+      effect: ^3.5.7
+
   '@emnapi/runtime@1.4.3':
     resolution: {integrity: sha512-pBPWdu6MLKROBX05wSNKcNb++m5Er+KQ9QkB+WVM+pW2Kx9hoSrVTnu3BdkI5eBLZoKu/J6mW/B6i6bJB2ytXQ==}
+
+  '@emurgo/cardano-message-signing-browser@1.1.0':
+    resolution: {integrity: sha512-LyeiGIqCyZu9DZnKsi4wlBjZA1MN+uy3Cqpb5J6RZWvFXDJnCoxrYB/EixUiGRD/la4WsldBgtPsrIHyGsVkpg==}
 
   '@emurgo/cardano-message-signing-nodejs@1.1.0':
     resolution: {integrity: sha512-PQRc8K8wZshEdmQenNUzVtiI8oJNF/1uAnBhidee5C4o1l2mDLOW+ur46HWHIFKQ6x8mSJTllcjMscHgzju0gQ==}
@@ -598,8 +683,41 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
+  '@jridgewell/trace-mapping@0.3.9':
+    resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
+
+  '@lucid-evolution/core-types@0.1.22':
+    resolution: {integrity: sha512-2ffw82PAjB9wdnW62zWh5J8Wkqrr+sMrdXtndejdu4UYmTdmf7rIClr+AfKO8IStCciVcNT/wQj59PyYu/Jg1Q==}
+
+  '@lucid-evolution/core-utils@0.1.16':
+    resolution: {integrity: sha512-fNKZiGl1h6tf48bji067uxHZpDlhkrIDrwhZLt5DQC/c6GVdZb4TSvqgs7MOmMqp1dj9dy6NDYWnCHeTqZAhJw==}
+
+  '@lucid-evolution/crc8@0.1.8':
+    resolution: {integrity: sha512-88+/S6n+sPgxYtG05rvbJDVb8MoFGzckkR3p26uGrzngYzlJGfxBWIzNhVwfI2mgINPo2C5lkZW3GYnfY0MjuA==}
+
+  '@lucid-evolution/lucid@0.4.27':
+    resolution: {integrity: sha512-/QXlF5dtCEENjqHSmqhqdTEdgG8abWCKa8AUHjkyJfLpXennk/egehrcRAe2jyPuZVh48e6nmdPBUt5O+zbtVg==}
+
+  '@lucid-evolution/plutus@0.1.29':
+    resolution: {integrity: sha512-GHmq9Pso+xeFszwKAd9jvRFnmnV4fRKdm+OHYLrS58yh3uazKr9VR+amtT9SmKufoLy/gNo5sL7i6gcNSW+yIg==}
+
+  '@lucid-evolution/provider@0.1.89':
+    resolution: {integrity: sha512-i4xdEN6iwlb/0UQw/1eHe+mlFGO38LbLcvQZppMSN70oRLoIkQBoGFk+yHiOnXiIjyO1idkI92Q1CeAKC0WQ8g==}
+
+  '@lucid-evolution/sign_data@0.1.25':
+    resolution: {integrity: sha512-ZDDl3SyO3Lf+/ji9u0Fg6I9oNs+tW//aHkgz4NlS+9xbx2bT9YU+mV9ZLLjWSZVGTb0TbzT4NGvVqdgRNspdYQ==}
+
+  '@lucid-evolution/uplc@0.2.19':
+    resolution: {integrity: sha512-t0UhCCD6Dxlz82fLjkiECWWlLwEXg2VzG91Lef7AKpsAF1KnvhgiYyGrhljJlgy29GTNV/H06+Rxir0O0u6rkw==}
+
+  '@lucid-evolution/utils@0.1.65':
+    resolution: {integrity: sha512-1YeinOiv9aKUhF86aTfvhbi2Nq6Mgb1AtUK+DA3aOHHR8eoVBoIb/Elw9fyH1CFAVbtBQafBI9Or3Pd66D4lkQ==}
+
+  '@lucid-evolution/wallet@0.1.71':
+    resolution: {integrity: sha512-AXRx4vSkSFdT2v/lAOEyniXo1hr5KD11wrsKVTIbS6jK1FDlLbd2xH5R5ucJRJH6zZGtfPBnSBCUoM05tKUkOg==}
 
   '@meshsdk/common@1.9.0-beta.43':
     resolution: {integrity: sha512-RIGgUSkscC5fcF/7nWJ8vCZyJk9V0BSOmgUm9nhLE4ZMFgL9K23uM0DLZEbZ3eXI+eNKEysK9cI0xPAjynnwvg==}
@@ -1393,6 +1511,12 @@ packages:
   '@simplewebauthn/browser@13.1.0':
     resolution: {integrity: sha512-WuHZ/PYvyPJ9nxSzgHtOEjogBhwJfC8xzYkPC+rR/+8chl/ft4ngjiK8kSU5HtRJfczupyOh33b25TjYbvwAcg==}
 
+  '@sinclair/typebox@0.32.35':
+    resolution: {integrity: sha512-Ul3YyOTU++to8cgNkttakC0dWvpERr6RYoHO2W47DLbFvrwBDJUY31B1sImH6JZSYc4Kt4PyHtoPNu+vL2r2dA==}
+
+  '@standard-schema/spec@1.0.0':
+    resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
+
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
 
@@ -1408,6 +1532,18 @@ packages:
   '@thaunknown/thirty-two@1.0.5':
     resolution: {integrity: sha512-Q53KyCXweV1CS62EfqtPDqfpksn5keQ59PGqzzkK+g8Vif1jB4inoBCcs/BUSdsqddhE3G+2Fn+4RX3S6RqT0A==}
     engines: {node: '>=0.2.6'}
+
+  '@tsconfig/node10@1.0.11':
+    resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
+
+  '@tsconfig/node12@1.0.11':
+    resolution: {integrity: sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==}
+
+  '@tsconfig/node14@1.0.3':
+    resolution: {integrity: sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==}
+
+  '@tsconfig/node16@1.0.4':
+    resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
   '@types/base32-encoding@1.0.2':
     resolution: {integrity: sha512-6kXiZ8gETqBU/B9ddcw15nwacX4iX9mLZTU0kghWK5u+OdjfJg6vxHh/vXoURWTyLSzs2jKgcq1lS3S/Tvl4mw==}
@@ -1474,6 +1610,15 @@ packages:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
     engines: {node: '>=6.5'}
 
+  acorn-walk@8.3.4:
+    resolution: {integrity: sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==}
+    engines: {node: '>=0.4.0'}
+
+  acorn@8.14.1:
+    resolution: {integrity: sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
   addr-to-ip-port@2.0.0:
     resolution: {integrity: sha512-9bYbtjamtdLHZSqVIUXhilOryNPiL+x+Q5J/Unpg4VY3ZIkK3fT52UoErj1NdUeVm3J1t2iBEAur4Ywbl/bahw==}
     engines: {node: '>=12.20.0'}
@@ -1500,6 +1645,9 @@ packages:
   anymatch@3.1.3:
     resolution: {integrity: sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==}
     engines: {node: '>= 8'}
+
+  arg@4.1.3:
+    resolution: {integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==}
 
   arg@5.0.2:
     resolution: {integrity: sha512-PYjyFOLKQ9y57JvQ6QLo8dAgNqswh8M1RMJYdQduT6xbWSgK36P/Z/v+p888pM69jMMfS8Xd8F6I1kQ/I9HUGg==}
@@ -1723,6 +1871,13 @@ packages:
   caniuse-lite@1.0.30001715:
     resolution: {integrity: sha512-7ptkFGMm2OAOgvZpwgA4yjQ5SQbrNVGdRjzH0pBdy1Fasvcr+KAeECmbCAECzTuDuoX0FCY8KzUxjf9+9kfZEw==}
 
+  cbor-extract@2.2.0:
+    resolution: {integrity: sha512-Ig1zM66BjLfTXpNgKpvBePq271BPOvu8MR0Jl080yG7Jsl+wAZunfrwiwA+9ruzm/WEdIV5QF/bjDZTqyAIVHA==}
+    hasBin: true
+
+  cbor-x@1.6.0:
+    resolution: {integrity: sha512-0kareyRwHSkL6ws5VXHEf8uY1liitysCVJjlmhaLG+IXLqhSaOO+t63coaso7yjwEzWZzLy8fJo06gZDVQM9Qg==}
+
   chacha-native@2.0.3:
     resolution: {integrity: sha512-93h+osfjhR2sMHAaapTLlL/COoBPEZ6upicPBQ4GfUyadoMb8t9/M0PKK8kC+F+DEA/Oy3Kg9w3HzY3J1foP3g==}
 
@@ -1810,6 +1965,9 @@ packages:
 
   create-hmac@1.1.7:
     resolution: {integrity: sha512-MJG9liiZ+ogc4TzUwuvbER1JRdgvUFSB5+VR/g5h82fGaIRWMWddtKBHi7/sVhfjQZ6SehlyhvQYrcYkaUIpLg==}
+
+  create-require@1.1.1:
+    resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
   create-torrent@6.1.0:
     resolution: {integrity: sha512-War593HCsg4TotHgMGWTJqnDHN0pmEU2RM13xUzzSZ78TpRNOC2bbcsC5yMO3pqIkedHEWFzYNqH1yhwuuBYTg==}
@@ -1927,6 +2085,10 @@ packages:
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
 
+  diff@4.0.2:
+    resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
+    engines: {node: '>=0.3.1'}
+
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
 
@@ -1950,6 +2112,9 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  effect@3.15.2:
+    resolution: {integrity: sha512-0JNwvfs4Wwbo3f6IOydBFlp+zxuO8Iny2UAWNW3+FNn9x8FJf7q67QnQagUZgPl/BLl/xuPLVksrmNyIrJ8k/Q==}
 
   electron-to-chromium@1.5.144:
     resolution: {integrity: sha512-eJIaMRKeAzxfBSxtjYnoIAw/tdD6VIH6tHBZepZnAbE3Gyqqs5mGN87DvcldPUbVkIljTK8pY0CMcUljP64lfQ==}
@@ -2020,6 +2185,10 @@ packages:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
 
+  fast-check@3.23.2:
+    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
+    engines: {node: '>=8.0.0'}
+
   fast-equals@5.2.2:
     resolution: {integrity: sha512-V7/RktU11J3I36Nwq2JnZEM7tNm17eBJz+u25qdxBZeCKiX6BkVSZQjwWIr+IobgnZy+ag73tTZgZi7tr0LrBw==}
     engines: {node: '>=6.0.0'}
@@ -2051,6 +2220,9 @@ packages:
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
+
+  find-my-way-ts@0.1.5:
+    resolution: {integrity: sha512-4GOTMrpGQVzsCH2ruUn2vmwzV/02zF4q+ybhCIrw/Rkt3L8KWcycdC6aJMctJzwN4fXD4SD5F/4B9Sksh5rE0A==}
 
   follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
@@ -2404,6 +2576,9 @@ packages:
     resolution: {integrity: sha512-z/+dB2NQsXaDuxVBjoPLpZT8ePaacUmoontoFheRBl++nALHYs4qV9MmhTur9e4SaMbkCR/uPX43UMzEOoeyaw==}
     engines: {node: '>=12.20.0'}
 
+  make-error@1.3.6:
+    resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -2468,6 +2643,9 @@ packages:
 
   multiformats@13.3.3:
     resolution: {integrity: sha512-TlaFCzs3NHNzMpwiGwRYehnnhHlZcWfptygFekshlb9xCyO09GfN+9881+VBENCdRnKOeqmMxDCbupNecV8xRQ==}
+
+  multipasta@0.2.5:
+    resolution: {integrity: sha512-c8eMDb1WwZcE02WVjHoOmUVk7fnKU/RmUcosHACglrWAuPQsEJv+E8430sXj6jNc1jHw0zrS16aCjQh4BcEb4A==}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -2550,6 +2728,10 @@ packages:
   node-fetch@3.3.2:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  node-gyp-build-optional-packages@5.1.1:
+    resolution: {integrity: sha512-+P72GAjVAbTxjjwUmwjVrqrdZROD4nf8KgpBoDxqXXTiYZZt/ud60dE5yvCSr9lRO8e8yv6kgJIC0K0PfZFVQw==}
+    hasBin: true
 
   node-gyp-build@4.8.4:
     resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
@@ -2787,6 +2969,9 @@ packages:
 
   pump@3.0.2:
     resolution: {integrity: sha512-tUPXtzlGM8FE3P0ZL6DVs/3P58k9nk8/jZeQCurTJylQA8qFYzHFfhBJkuqyE0FifOsQ0uKWekiZ5g8wtr28cw==}
+
+  pure-rand@6.1.0:
+    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
   pvtsutils@1.3.6:
     resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
@@ -3188,11 +3373,28 @@ packages:
     resolution: {integrity: sha512-5OX1tzOjxWEgsr/YEUWSuPrQ00deKLh6D7OTWcvNHm12/7QPyRh8SYpyWvA4IZv8H/+GQWQEh/kwo95Q9OVW1A==}
     engines: {node: '>=14.0.0'}
 
+  ts-dotenv@0.9.1:
+    resolution: {integrity: sha512-oTTXmjSMkCIK8d+uKbQnHh7JS9zEYGn3pq7nE0qHVERq+6Mx9wZKcXVAT+7X0qhOWpRz10dqrJCFFcKwunYz5w==}
+
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
   ts-log@2.2.7:
     resolution: {integrity: sha512-320x5Ggei84AxzlXp91QkIGSw5wgaLT6GeAH0KsqDmRZdVWW2OiSeVvElVoatk3f7nicwXlElXsoFkARiGE2yg==}
+
+  ts-node@10.9.2:
+    resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
+    hasBin: true
+    peerDependencies:
+      '@swc/core': '>=1.2.50'
+      '@swc/wasm': '>=1.2.50'
+      '@types/node': '*'
+      typescript: '>=2.7'
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      '@swc/wasm':
+        optional: true
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
@@ -3302,6 +3504,9 @@ packages:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
     hasBin: true
 
+  v8-compile-cache-lib@3.0.1:
+    resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
+
   vaul@0.9.6:
     resolution: {integrity: sha512-Ykk5FSu4ibeD6qfKQH/CkBRdSGWkxi35KMNei0z59kTPAlgzpE/Qf1gTx2sxih8Q05KBO/aFhcF/UkBW5iI1Ww==}
     peerDependencies:
@@ -3404,6 +3609,10 @@ packages:
     engines: {node: '>= 14'}
     hasBin: true
 
+  yn@3.1.1:
+    resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
+    engines: {node: '>=6'}
+
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
@@ -3415,6 +3624,14 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
+
+  '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-2': {}
+
+  '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-3': {}
+
+  '@anastasia-labs/cardano-multiplatform-lib-nodejs@6.0.2-2': {}
+
+  '@anastasia-labs/cardano-multiplatform-lib-nodejs@6.0.2-3': {}
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -3714,6 +3931,24 @@ snapshots:
     dependencies:
       bignumber.js: 9.3.0
 
+  '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-arm@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-x64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-win32-x64@2.2.0':
+    optional: true
+
   '@chainsafe/is-ip@2.1.0': {}
 
   '@chainsafe/netmask@2.0.0':
@@ -3735,10 +3970,32 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
+  '@cspotcode/source-map-support@0.8.1':
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.9
+
+  '@effect/platform@0.71.7(effect@3.15.2)':
+    dependencies:
+      effect: 3.15.2
+      find-my-way-ts: 0.1.5
+      multipasta: 0.2.5
+
+  '@effect/schema@0.66.16(effect@3.15.2)(fast-check@3.23.2)':
+    dependencies:
+      effect: 3.15.2
+      fast-check: 3.23.2
+
+  '@effect/schema@0.68.27(effect@3.15.2)':
+    dependencies:
+      effect: 3.15.2
+      fast-check: 3.23.2
+
   '@emnapi/runtime@1.4.3':
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@emurgo/cardano-message-signing-browser@1.1.0': {}
 
   '@emurgo/cardano-message-signing-nodejs@1.1.0': {}
 
@@ -3943,7 +4200,147 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  '@jridgewell/trace-mapping@0.3.9':
+    dependencies:
+      '@jridgewell/resolve-uri': 3.1.2
+      '@jridgewell/sourcemap-codec': 1.5.0
+
   '@leichtgewicht/ip-codec@2.0.5': {}
+
+  '@lucid-evolution/core-types@0.1.22':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+
+  '@lucid-evolution/core-utils@0.1.16':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-2
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-2
+
+  '@lucid-evolution/crc8@0.1.8': {}
+
+  '@lucid-evolution/lucid@0.4.27(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(fast-check@3.23.2)(rxjs@7.8.2)(utf-8-validate@6.0.5)':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+      '@effect/schema': 0.66.16(effect@3.15.2)(fast-check@3.23.2)
+      '@emurgo/cardano-message-signing-nodejs': 1.1.0
+      '@lucid-evolution/core-types': 0.1.22
+      '@lucid-evolution/core-utils': 0.1.16
+      '@lucid-evolution/plutus': 0.1.29
+      '@lucid-evolution/provider': 0.1.89(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      '@lucid-evolution/sign_data': 0.1.25
+      '@lucid-evolution/uplc': 0.2.19
+      '@lucid-evolution/utils': 0.1.65(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      '@lucid-evolution/wallet': 0.1.71(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      effect: 3.15.2
+    transitivePeerDependencies:
+      - '@dcspark/cardano-multiplatform-lib-asmjs'
+      - '@dcspark/cardano-multiplatform-lib-browser'
+      - '@dcspark/cardano-multiplatform-lib-nodejs'
+      - '@harmoniclabs/bytestring'
+      - '@harmoniclabs/cbor'
+      - '@harmoniclabs/crypto'
+      - '@harmoniclabs/pair'
+      - bufferutil
+      - encoding
+      - fast-check
+      - rxjs
+      - utf-8-validate
+
+  '@lucid-evolution/plutus@0.1.29':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+      '@lucid-evolution/core-types': 0.1.22
+      '@lucid-evolution/core-utils': 0.1.16
+      '@sinclair/typebox': 0.32.35
+
+  '@lucid-evolution/provider@0.1.89(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+      '@effect/platform': 0.71.7(effect@3.15.2)
+      '@effect/schema': 0.68.27(effect@3.15.2)
+      '@lucid-evolution/core-types': 0.1.22
+      '@lucid-evolution/core-utils': 0.1.16
+      '@lucid-evolution/utils': 0.1.65(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      '@lucid-evolution/wallet': 0.1.71(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      effect: 3.15.2
+    transitivePeerDependencies:
+      - '@dcspark/cardano-multiplatform-lib-asmjs'
+      - '@dcspark/cardano-multiplatform-lib-browser'
+      - '@dcspark/cardano-multiplatform-lib-nodejs'
+      - '@harmoniclabs/bytestring'
+      - '@harmoniclabs/cbor'
+      - '@harmoniclabs/crypto'
+      - '@harmoniclabs/pair'
+      - bufferutil
+      - encoding
+      - rxjs
+      - utf-8-validate
+
+  '@lucid-evolution/sign_data@0.1.25':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+      '@emurgo/cardano-message-signing-browser': 1.1.0
+      '@emurgo/cardano-message-signing-nodejs': 1.1.0
+      '@lucid-evolution/core-types': 0.1.22
+      '@lucid-evolution/core-utils': 0.1.16
+
+  '@lucid-evolution/uplc@0.2.19': {}
+
+  '@lucid-evolution/utils@0.1.65(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+      '@cardano-sdk/core': 0.45.8(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      '@effect/schema': 0.68.27(effect@3.15.2)
+      '@harmoniclabs/plutus-data': 1.2.4(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)
+      '@harmoniclabs/uplc': 1.2.4(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(@harmoniclabs/plutus-data@1.2.4(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0))
+      '@lucid-evolution/core-types': 0.1.22
+      '@lucid-evolution/core-utils': 0.1.16
+      '@lucid-evolution/crc8': 0.1.8
+      '@lucid-evolution/plutus': 0.1.29
+      '@lucid-evolution/uplc': 0.2.19
+      bip39: 3.1.0
+      cbor-x: 1.6.0
+      effect: 3.15.2
+    transitivePeerDependencies:
+      - '@dcspark/cardano-multiplatform-lib-asmjs'
+      - '@dcspark/cardano-multiplatform-lib-browser'
+      - '@dcspark/cardano-multiplatform-lib-nodejs'
+      - '@harmoniclabs/bytestring'
+      - '@harmoniclabs/cbor'
+      - '@harmoniclabs/crypto'
+      - '@harmoniclabs/pair'
+      - bufferutil
+      - encoding
+      - rxjs
+      - utf-8-validate
+
+  '@lucid-evolution/wallet@0.1.71(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)':
+    dependencies:
+      '@anastasia-labs/cardano-multiplatform-lib-browser': 6.0.2-3
+      '@anastasia-labs/cardano-multiplatform-lib-nodejs': 6.0.2-3
+      '@lucid-evolution/core-types': 0.1.22
+      '@lucid-evolution/core-utils': 0.1.16
+      '@lucid-evolution/sign_data': 0.1.25
+      '@lucid-evolution/utils': 0.1.65(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.3.0)(@harmoniclabs/crypto@0.2.5)(@harmoniclabs/pair@1.0.0)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
+      bip39: 3.1.0
+    transitivePeerDependencies:
+      - '@dcspark/cardano-multiplatform-lib-asmjs'
+      - '@dcspark/cardano-multiplatform-lib-browser'
+      - '@dcspark/cardano-multiplatform-lib-nodejs'
+      - '@harmoniclabs/bytestring'
+      - '@harmoniclabs/cbor'
+      - '@harmoniclabs/crypto'
+      - '@harmoniclabs/pair'
+      - bufferutil
+      - encoding
+      - rxjs
+      - utf-8-validate
 
   '@meshsdk/common@1.9.0-beta.43':
     dependencies:
@@ -3979,12 +4376,12 @@ snapshots:
       - rxjs
       - utf-8-validate
 
-  '@meshsdk/core@1.9.0-beta.43(@babel/core@7.27.1)(@bufbuild/protobuf@1.10.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17)(utf-8-validate@6.0.5)':
+  '@meshsdk/core@1.9.0-beta.43(@babel/core@7.27.1)(@bufbuild/protobuf@1.10.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)))(utf-8-validate@6.0.5)':
     dependencies:
       '@meshsdk/common': 1.9.0-beta.43
       '@meshsdk/core-cst': 1.9.0-beta.43(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
       '@meshsdk/provider': 1.9.0-beta.43(@bufbuild/protobuf@1.10.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
-      '@meshsdk/react': 1.9.0-beta.43(@babel/core@7.27.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17)(utf-8-validate@6.0.5)
+      '@meshsdk/react': 1.9.0-beta.43(@babel/core@7.27.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)))(utf-8-validate@6.0.5)
       '@meshsdk/transaction': 1.9.0-beta.43(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
       '@meshsdk/wallet': 1.9.0-beta.43(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(bufferutil@4.0.9)(rxjs@7.8.2)(utf-8-validate@6.0.5)
     transitivePeerDependencies:
@@ -4028,7 +4425,7 @@ snapshots:
       - rxjs
       - utf-8-validate
 
-  '@meshsdk/react@1.9.0-beta.43(@babel/core@7.27.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17)(utf-8-validate@6.0.5)':
+  '@meshsdk/react@1.9.0-beta.43(@babel/core@7.27.1)(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/crypto@0.2.5)(@types/react-dom@19.0.0)(@types/react@19.0.0)(bufferutil@4.0.9)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)))(utf-8-validate@6.0.5)':
     dependencies:
       '@fabianbormann/cardano-peer-connect': 1.2.18(@babel/core@7.27.1)
       '@meshsdk/common': 1.9.0-beta.43
@@ -4044,7 +4441,7 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       tailwind-merge: 2.6.0
-      tailwindcss-animate: 1.0.7(tailwindcss@3.4.17)
+      tailwindcss-animate: 1.0.7(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)))
     transitivePeerDependencies:
       - '@babel/core'
       - '@dcspark/cardano-multiplatform-lib-asmjs'
@@ -4917,6 +5314,10 @@ snapshots:
 
   '@simplewebauthn/browser@13.1.0': {}
 
+  '@sinclair/typebox@0.32.35': {}
+
+  '@standard-schema/spec@1.0.0': {}
+
   '@swc/counter@0.1.3': {}
 
   '@swc/helpers@0.5.15':
@@ -4948,6 +5349,14 @@ snapshots:
   '@thaunknown/thirty-two@1.0.5':
     dependencies:
       uint8-util: 2.2.5
+
+  '@tsconfig/node10@1.0.11': {}
+
+  '@tsconfig/node12@1.0.11': {}
+
+  '@tsconfig/node14@1.0.3': {}
+
+  '@tsconfig/node16@1.0.4': {}
 
   '@types/base32-encoding@1.0.2':
     dependencies:
@@ -5026,6 +5435,12 @@ snapshots:
     dependencies:
       event-target-shim: 5.0.1
 
+  acorn-walk@8.3.4:
+    dependencies:
+      acorn: 8.14.1
+
+  acorn@8.14.1: {}
+
   addr-to-ip-port@2.0.0: {}
 
   ansi-regex@5.0.1: {}
@@ -5044,6 +5459,8 @@ snapshots:
     dependencies:
       normalize-path: 3.0.0
       picomatch: 2.3.1
+
+  arg@4.1.3: {}
 
   arg@5.0.2: {}
 
@@ -5316,6 +5733,22 @@ snapshots:
 
   caniuse-lite@1.0.30001715: {}
 
+  cbor-extract@2.2.0:
+    dependencies:
+      node-gyp-build-optional-packages: 5.1.1
+    optionalDependencies:
+      '@cbor-extract/cbor-extract-darwin-arm64': 2.2.0
+      '@cbor-extract/cbor-extract-darwin-x64': 2.2.0
+      '@cbor-extract/cbor-extract-linux-arm': 2.2.0
+      '@cbor-extract/cbor-extract-linux-arm64': 2.2.0
+      '@cbor-extract/cbor-extract-linux-x64': 2.2.0
+      '@cbor-extract/cbor-extract-win32-x64': 2.2.0
+    optional: true
+
+  cbor-x@1.6.0:
+    optionalDependencies:
+      cbor-extract: 2.2.0
+
   chacha-native@2.0.3:
     dependencies:
       bindings: 1.5.0
@@ -5439,6 +5872,8 @@ snapshots:
       safe-buffer: 5.2.1
       sha.js: 2.4.11
 
+  create-require@1.1.1: {}
+
   create-torrent@6.1.0:
     dependencies:
       bencode: 4.0.0
@@ -5547,6 +5982,8 @@ snapshots:
 
   didyoumean@1.2.2: {}
 
+  diff@4.0.2: {}
+
   dlv@1.1.3: {}
 
   dns-packet@5.6.1:
@@ -5569,6 +6006,11 @@ snapshots:
       gopd: 1.2.0
 
   eastasianwidth@0.2.0: {}
+
+  effect@3.15.2:
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      fast-check: 3.23.2
 
   electron-to-chromium@1.5.144: {}
 
@@ -5633,6 +6075,10 @@ snapshots:
 
   expand-template@2.0.3: {}
 
+  fast-check@3.23.2:
+    dependencies:
+      pure-rand: 6.1.0
+
   fast-equals@5.2.2: {}
 
   fast-fifo@1.3.2: {}
@@ -5664,6 +6110,8 @@ snapshots:
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
+
+  find-my-way-ts@0.1.5: {}
 
   follow-redirects@1.15.9: {}
 
@@ -6005,6 +6453,8 @@ snapshots:
       bep53-range: 2.0.0
       uint8-util: 2.2.5
 
+  make-error@1.3.6: {}
+
   math-intrinsics@1.1.0: {}
 
   md5.js@1.3.5:
@@ -6055,6 +6505,8 @@ snapshots:
   ms@2.1.3: {}
 
   multiformats@13.3.3: {}
+
+  multipasta@0.2.5: {}
 
   mz@2.7.0:
     dependencies:
@@ -6128,6 +6580,11 @@ snapshots:
       data-uri-to-buffer: 4.0.1
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
+
+  node-gyp-build-optional-packages@5.1.1:
+    dependencies:
+      detect-libc: 2.0.4
+    optional: true
 
   node-gyp-build@4.8.4:
     optional: true
@@ -6217,12 +6674,13 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.5.3
 
-  postcss-load-config@4.0.2(postcss@8.5.3):
+  postcss-load-config@4.0.2(postcss@8.5.3)(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)):
     dependencies:
       lilconfig: 3.1.3
       yaml: 2.7.1
     optionalDependencies:
       postcss: 8.5.3
+      ts-node: 10.9.2(@types/node@22.0.0)(typescript@5.0.2)
 
   postcss-nested@6.2.0(postcss@8.5.3):
     dependencies:
@@ -6286,6 +6744,8 @@ snapshots:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+
+  pure-rand@6.1.0: {}
 
   pvtsutils@1.3.6:
     dependencies:
@@ -6657,11 +7117,11 @@ snapshots:
 
   tailwind-merge@2.6.0: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@3.4.17):
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2))):
     dependencies:
-      tailwindcss: 3.4.17
+      tailwindcss: 3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2))
 
-  tailwindcss@3.4.17:
+  tailwindcss@3.4.17(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -6680,7 +7140,7 @@ snapshots:
       postcss: 8.5.3
       postcss-import: 15.1.0(postcss@8.5.3)
       postcss-js: 4.0.1(postcss@8.5.3)
-      postcss-load-config: 4.0.2(postcss@8.5.3)
+      postcss-load-config: 4.0.2(postcss@8.5.3)(ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2))
       postcss-nested: 6.2.0(postcss@8.5.3)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.10
@@ -6748,9 +7208,29 @@ snapshots:
 
   ts-custom-error@3.3.1: {}
 
+  ts-dotenv@0.9.1: {}
+
   ts-interface-checker@0.1.13: {}
 
   ts-log@2.2.7: {}
+
+  ts-node@10.9.2(@types/node@22.0.0)(typescript@5.0.2):
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.11
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 22.0.0
+      acorn: 8.14.1
+      acorn-walk: 8.3.4
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 5.0.2
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
 
   tslib@2.8.1: {}
 
@@ -6861,6 +7341,8 @@ snapshots:
     optional: true
 
   uuid@11.1.0: {}
+
+  v8-compile-cache-lib@3.0.1: {}
 
   vaul@0.9.6(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
@@ -7018,5 +7500,7 @@ snapshots:
   yallist@3.1.1: {}
 
   yaml@2.7.1: {}
+
+  yn@3.1.1: {}
 
   zod@3.24.1: {}
