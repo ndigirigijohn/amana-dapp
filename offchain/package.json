@@ -1,0 +1,28 @@
+{
+  "name": "amana-contracts-scripts",
+  "version": "1.0.0",
+  "description": "Deployment scripts for Amana CE smart contracts",
+  "main": "dist/entity-registry.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "deploy:entity": "ts-node --esm entity-registry.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cardano",
+    "smart-contract",
+    "plutus"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lucid-evolution/lucid": "latest",
+    "ts-dotenv": "^0.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
