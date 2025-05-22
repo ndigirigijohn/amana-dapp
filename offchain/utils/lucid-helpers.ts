@@ -12,7 +12,7 @@ import {
   import { selectedNetwork } from '../config';
   
   // Initialize Lucid with Blockfrost provider
-  export async function initLucid(privateKeyHex: string): Promise<LucidEvolution> {
+  export async function initLucid(mnemonic: string): Promise<LucidEvolution> {
     const lucid = await Lucid(
       new Blockfrost(
         selectedNetwork.url,
@@ -21,8 +21,8 @@ import {
       'Preview'
     );
     
-    // Use the correct method to select wallet from private key
-    lucid.selectWallet.fromPrivateKey(privateKeyHex);
+    // Use the correct method to select wallet from mnemonic
+    lucid.selectWallet.fromSeed(mnemonic);
     
     return lucid;
   }

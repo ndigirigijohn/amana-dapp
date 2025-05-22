@@ -3,7 +3,7 @@ import * as dotenv from 'ts-dotenv';
 
 // Load environment variables
 export const env = dotenv.load({
-  PRIVATE_KEY: String,
+  MNEMONIC: String,
   NETWORK: {
     type: String,
     default: 'preview'

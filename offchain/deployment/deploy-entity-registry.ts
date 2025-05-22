@@ -13,7 +13,7 @@ async function deployEntityRegistry() {
     console.log('Starting entity registry deployment...');
     
     // Initialize Lucid
-    const lucid = await initLucid(env.PRIVATE_KEY);
+    const lucid = await initLucid(env.MNEMONIC);
     console.log('Lucid initialized');
     
     // Get validator info
