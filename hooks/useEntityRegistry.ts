@@ -10,239 +10,203 @@ import {
 } from '@/lib/blockchain/entity-registry';
 import { getSavedWalletConnection } from '@/lib/common';
 
-// Hook state interface
-interface EntityRegistryState {
+export interface UseEntityRegistryReturn {
+  // State
   isInitialized: boolean;
   isInitializing: boolean;
   isCreatingEntity: boolean;
   isWaitingForConfirmation: boolean;
   error: string | null;
   lastTransaction: CreateEntityResult | null;
-}
-
-// Hook return interface
-interface UseEntityRegistryReturn extends EntityRegistryState {
+  
   // Actions
   initializeRegistry: () => Promise<boolean>;
   createEntity: (name: string, description: string) => Promise<CreateEntityResult | null>;
   waitForConfirmation: (txHash: string) => Promise<boolean>;
   clearError: () => void;
-  disconnect: () => void;
-  
-  // Utilities
-  getContractAddress: () => string | null;
-  getWalletAddress: () => Promise<string | null>;
 }
 
-/**
- * React hook for Entity Registry operations
- * Manages blockchain connection state and provides easy-to-use methods
- */
 export function useEntityRegistry(): UseEntityRegistryReturn {
-  // State management
-  const [state, setState] = useState<EntityRegistryState>({
-    isInitialized: false,
-    isInitializing: false,
-    isCreatingEntity: false,
-    isWaitingForConfirmation: false,
-    error: null,
-    lastTransaction: null,
-  });
-
-  // Registry instance (persisted between renders)
+  // State
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [isCreatingEntity, setIsCreatingEntity] = useState(false);
+  const [isWaitingForConfirmation, setIsWaitingForConfirmation] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [lastTransaction, setLastTransaction] = useState<CreateEntityResult | null>(null);
+  
+  // Registry instance ref
   const registryRef = useRef<BrowserEntityRegistry | null>(null);
 
-  // Helper to update state
-  const updateState = useCallback((updates: Partial<EntityRegistryState>) => {
-    setState(prev => ({ ...prev, ...updates }));
-  }, []);
-
-  // Helper to handle errors
-  const handleError = useCallback((error: unknown, context: string) => {
-    console.error(`Entity Registry Error (${context}):`, error);
-    
-    let errorMessage = 'An unknown error occurred';
-    
-    if (error instanceof WalletConnectionError) {
-      errorMessage = `Wallet connection failed: ${error.message}`;
-    } else if (error instanceof TransactionError) {
-      errorMessage = `Transaction failed: ${error.message}`;
-    } else if (error instanceof EntityRegistryError) {
-      errorMessage = error.message;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-
-    updateState({ error: errorMessage });
-    return false;
-  }, [updateState]);
-
-  // Initialize the registry with connected wallet
+// Initialize the blockchain connection
   const initializeRegistry = useCallback(async (): Promise<boolean> => {
-    if (state.isInitializing || state.isInitialized) {
-      return state.isInitialized;
+    if (isInitialized || isInitializing) {
+      return isInitialized;
     }
 
-    updateState({ isInitializing: true, error: null });
+    setIsInitializing(true);
+    setError(null);
 
     try {
-      // Get saved wallet connection
+      // Get wallet connection info
       const walletConnection = getSavedWalletConnection();
       if (!walletConnection) {
         throw new Error('No wallet connected. Please connect your wallet first.');
       }
 
-      // Create registry instance if it doesn't exist
-      if (!registryRef.current) {
-        registryRef.current = createEntityRegistry();
+      console.log('Wallet connection found:', walletConnection.name);
+
+      // Check for Blockfrost API key
+      const blockfrostProjectId = process.env.NEXT_PUBLIC_BLOCKFROST_PROJECT_ID;
+      if (!blockfrostProjectId) {
+        throw new Error('Blockfrost API key not found. Please add NEXT_PUBLIC_BLOCKFROST_PROJECT_ID to your .env.local file');
       }
 
-      // Initialize with the connected wallet
+      console.log('Blockfrost project ID found');
+
+      // Create registry instance
+      if (!registryRef.current) {
+        registryRef.current = createEntityRegistry({
+          network: 'Preview',
+          blockfrostProjectId: blockfrostProjectId,
+        });
+      }
+
+      console.log('Registry instance created, initializing with wallet:', walletConnection.name);
+
+      // Initialize with connected wallet
       await registryRef.current.initialize(walletConnection.name);
-
-      updateState({ 
-        isInitialized: true,
-        isInitializing: false,
-        error: null 
-      });
-
-      console.log('Entity Registry initialized successfully');
+      
+      setIsInitialized(true);
+      console.log('Entity registry initialized successfully');
       return true;
-
-    } catch (error) {
-      updateState({ isInitializing: false });
-      return handleError(error, 'initialization');
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize registry';
+      console.error('Registry initialization error:', err);
+      
+      // Provide more specific error messages
+      if (err instanceof Error) {
+        if (err.message.includes('Blockfrost')) {
+          setError('Blockchain connection failed. Please check your Blockfrost API key.');
+        } else if (err.message.includes('wallet')) {
+          setError('Wallet connection failed. Please try reconnecting your wallet.');
+        } else {
+          setError(errorMessage);
+        }
+      } else {
+        setError(errorMessage);
+      }
+      
+      return false;
+    } finally {
+      setIsInitializing(false);
     }
-  }, [state.isInitializing, state.isInitialized, updateState, handleError]);
+  }, [isInitialized, isInitializing]);
 
-  // Create a new entity
+// Create a new entity
   const createEntity = useCallback(async (
     name: string, 
     description: string
   ): Promise<CreateEntityResult | null> => {
-    if (state.isCreatingEntity) {
+    console.log('useEntityRegistry: createEntity called with:', { name, description });
+    console.log('useEntityRegistry: Current state:', {
+      hasRegistry: !!registryRef.current,
+      isInitialized,
+      isInitializing
+    });
+    
+    // If we have a registry instance but isInitialized is false, 
+    // it might be a state sync issue
+    if (registryRef.current && !isInitialized) {
+      console.log('useEntityRegistry: Registry exists but state shows not initialized, updating state');
+      setIsInitialized(true);
+    }
+    
+    if (!registryRef.current) {
+      console.error('useEntityRegistry: Registry not initialized');
+      setError('Registry not initialized. Please try again.');
       return null;
     }
 
-    // Ensure registry is initialized
-    if (!state.isInitialized) {
-      const initialized = await initializeRegistry();
-      if (!initialized) {
-        return null;
-      }
-    }
-
-    updateState({ isCreatingEntity: true, error: null });
+    setIsCreatingEntity(true);
+    setError(null);
 
     try {
-      if (!registryRef.current) {
-        throw new Error('Registry not initialized');
-      }
-
+      console.log('useEntityRegistry: Calling registry.createEntity...');
       const result = await registryRef.current.createEntity(name, description);
       
-      updateState({ 
-        isCreatingEntity: false,
-        lastTransaction: result,
-        error: null 
-      });
-
-      console.log('Entity created successfully:', result);
+      console.log('useEntityRegistry: Entity created successfully:', result);
+      setLastTransaction(result);
       return result;
-
-    } catch (error) {
-      updateState({ isCreatingEntity: false });
-      handleError(error, 'entity creation');
+      
+    } catch (err) {
+      console.error('useEntityRegistry: createEntity error:', err);
+      
+      let errorMessage = 'Failed to create entity';
+      
+      if (err instanceof WalletConnectionError) {
+        errorMessage = 'Wallet connection error: ' + err.message;
+      } else if (err instanceof TransactionError) {
+        errorMessage = err.message;
+      } else if (err instanceof EntityRegistryError) {
+        errorMessage = err.message;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      console.error('useEntityRegistry: Setting error message:', errorMessage);
+      setError(errorMessage);
       return null;
+    } finally {
+      setIsCreatingEntity(false);
     }
-  }, [state.isInitialized, state.isCreatingEntity, initializeRegistry, updateState, handleError]);
+  }, [isInitialized]);
+  
 
   // Wait for transaction confirmation
   const waitForConfirmation = useCallback(async (txHash: string): Promise<boolean> => {
-    if (state.isWaitingForConfirmation) {
+    if (!registryRef.current || !isInitialized) {
+      setError('Registry not initialized');
       return false;
     }
 
-    updateState({ isWaitingForConfirmation: true, error: null });
+    setIsWaitingForConfirmation(true);
+    setError(null);
 
     try {
-      if (!registryRef.current) {
-        throw new Error('Registry not initialized');
-      }
-
       await registryRef.current.waitForConfirmation(txHash);
-      
-      updateState({ 
-        isWaitingForConfirmation: false,
-        error: null 
-      });
-
       console.log('Transaction confirmed:', txHash);
       return true;
-
-    } catch (error) {
-      updateState({ isWaitingForConfirmation: false });
-      return handleError(error, 'transaction confirmation');
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Transaction confirmation failed';
+      console.error('Confirmation error:', err);
+      setError(errorMessage);
+      return false;
+    } finally {
+      setIsWaitingForConfirmation(false);
     }
-  }, [state.isWaitingForConfirmation, updateState, handleError]);
+  }, [isInitialized]);
 
-  // Get contract address
-  const getContractAddress = useCallback((): string | null => {
-    try {
-      return registryRef.current?.getContractAddress() || null;
-    } catch (error) {
-      console.error('Failed to get contract address:', error);
-      return null;
-    }
-  }, []);
-
-  // Get wallet address
-  const getWalletAddress = useCallback(async (): Promise<string | null> => {
-    try {
-      return await registryRef.current?.getWalletAddress() || null;
-    } catch (error) {
-      console.error('Failed to get wallet address:', error);
-      return null;
-    }
-  }, []);
-
-  // Clear error state
+  // Clear error
   const clearError = useCallback(() => {
-    updateState({ error: null });
-  }, [updateState]);
-
-  // Disconnect and cleanup
-  const disconnect = useCallback(() => {
-    if (registryRef.current) {
-      registryRef.current.disconnect();
-      registryRef.current = null;
-    }
-    
-    setState({
-      isInitialized: false,
-      isInitializing: false,
-      isCreatingEntity: false,
-      isWaitingForConfirmation: false,
-      error: null,
-      lastTransaction: null,
-    });
-
-    console.log('Entity Registry disconnected');
+    setError(null);
   }, []);
 
   return {
     // State
-    ...state,
+    isInitialized,
+    isInitializing,
+    isCreatingEntity,
+    isWaitingForConfirmation,
+    error,
+    lastTransaction,
     
     // Actions
     initializeRegistry,
     createEntity,
     waitForConfirmation,
     clearError,
-    disconnect,
-    
-    // Utilities
-    getContractAddress,
-    getWalletAddress,
   };
 }

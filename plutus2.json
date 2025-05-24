@@ -1,0 +1,905 @@
+{
+  "preamble": {
+    "title": "amanace/amana-contracts",
+    "description": "Aiken contracts for project 'amanace/amana-contracts'",
+    "version": "0.0.0",
+    "plutusVersion": "v3",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.1.15+unknown"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "entity_registry/entity_registry.entity_registry.spend",
+      "datum": {
+        "title": "datum_opt",
+        "schema": {
+          "$ref": "#/definitions/entity_registry~1types~1RegistryDatum"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/entity_registry~1types~1RegistryAction"
+        }
+      },
+      "compiledCode":
+       "",
+      "hash": "45a6a439f50cb41279fbe0bab5fd2eda84ff02b9d1a395c800a5d98d"
+    },
+    {
+      "title": "entity_registry/entity_registry.entity_registry.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "",
+      "hash": "45a6a439f50cb41279fbe0bab5fd2eda84ff02b9d1a395c800a5d98d"
+    },
+    {
+      "title": "governance/governance.governance.spend",
+      "datum": {
+        "title": "datum_opt",
+        "schema": {
+          "$ref": "#/definitions/governance~1types~1GovernanceDatum"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/governance~1types~1GovernanceAction"
+        }
+      },
+      "parameters": [
+        {
+          "title": "entity_registry_hash",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        },
+        {
+          "title": "treasury_hash",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        }
+      ],
+      "compiledCode": "",
+      "hash": "39ef2a2d25b7bf49925657c4b2c80bab32b830d1027d0acff3483a07"
+    },
+    {
+      "title": "governance/governance.governance.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "parameters": [
+        {
+          "title": "entity_registry_hash",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        },
+        {
+          "title": "treasury_hash",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        }
+      ],
+      "compiledCode": "",
+      "hash": "39ef2a2d25b7bf49925657c4b2c80bab32b830d1027d0acff3483a07"
+    },
+    {
+      "title": "treasury_management/treasury_management.treasury_management.spend",
+      "datum": {
+        "title": "datum_opt",
+        "schema": {
+          "$ref": "#/definitions/treasury_management~1types~1TreasuryDatum"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/treasury_management~1types~1TreasuryAction"
+        }
+      },
+      "compiledCode": "",
+      "hash": "e64593f8c309103159e45e30c4dff536005e488c50efbc35eef47758"
+    },
+    {
+      "title": "treasury_management/treasury_management.treasury_management.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "",
+      "hash": "e64593f8c309103159e45e30c4dff536005e488c50efbc35eef47758"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "title": "ByteArray",
+      "dataType": "bytes"
+    },
+    "Data": {
+      "title": "Data",
+      "description": "Any Plutus data."
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "List$Pair$ByteArray_Int": {
+      "dataType": "map",
+      "keys": {
+        "$ref": "#/definitions/ByteArray"
+      },
+      "values": {
+        "$ref": "#/definitions/Int"
+      }
+    },
+    "List$Pair$ByteArray_List$Pair$ByteArray_Int": {
+      "dataType": "map",
+      "keys": {
+        "$ref": "#/definitions/ByteArray"
+      },
+      "values": {
+        "$ref": "#/definitions/List$Pair$ByteArray_Int"
+      }
+    },
+    "List$Pair$aiken/crypto/VerificationKeyHash_entity_registry/types/Member": {
+      "dataType": "map",
+      "keys": {
+        "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+      },
+      "values": {
+        "$ref": "#/definitions/entity_registry~1types~1Member"
+      }
+    },
+    "List$Pair$aiken/crypto/VerificationKeyHash_governance/types/Vote": {
+      "dataType": "map",
+      "keys": {
+        "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+      },
+      "values": {
+        "$ref": "#/definitions/governance~1types~1Vote"
+      }
+    },
+    "List$Pair$treasury_management/types/TransactionType_Int": {
+      "dataType": "map",
+      "keys": {
+        "$ref": "#/definitions/treasury_management~1types~1TransactionType"
+      },
+      "values": {
+        "$ref": "#/definitions/Int"
+      }
+    },
+    "List$aiken/crypto/VerificationKeyHash": {
+      "dataType": "list",
+      "items": {
+        "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+      }
+    },
+    "List$governance/types/Proposal": {
+      "dataType": "list",
+      "items": {
+        "$ref": "#/definitions/governance~1types~1Proposal"
+      }
+    },
+    "List$treasury_management/types/PendingTransaction": {
+      "dataType": "list",
+      "items": {
+        "$ref": "#/definitions/treasury_management~1types~1PendingTransaction"
+      }
+    },
+    "List$treasury_management/types/TransactionRecord": {
+      "dataType": "list",
+      "items": {
+        "$ref": "#/definitions/treasury_management~1types~1TransactionRecord"
+      }
+    },
+    "aiken/crypto/VerificationKeyHash": {
+      "title": "VerificationKeyHash",
+      "dataType": "bytes"
+    },
+    "cardano/transaction/OutputReference": {
+      "title": "OutputReference",
+      "description": "An `OutputReference` is a unique reference to an output on-chain. The `output_index`\n corresponds to the position in the output list of the transaction (identified by its id)\n that produced that output",
+      "anyOf": [
+        {
+          "title": "OutputReference",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "transaction_id",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "output_index",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "entity_registry/types/Entity": {
+      "title": "Entity",
+      "description": "Types for the Entity Registry contract\n These types represent the core data structures used for SACCO entities and their members\n SACCO entity metadata",
+      "anyOf": [
+        {
+          "title": "Entity",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "name",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "description",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "creation_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "founder",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "title": "member_count",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "entity_registry/types/Member": {
+      "title": "Member",
+      "description": "Member record",
+      "anyOf": [
+        {
+          "title": "Member",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "name",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "verification_key_hash",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "title": "join_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "status",
+              "$ref": "#/definitions/entity_registry~1types~1MemberStatus"
+            }
+          ]
+        }
+      ]
+    },
+    "entity_registry/types/MemberStatus": {
+      "title": "MemberStatus",
+      "description": "Member status enumeration",
+      "anyOf": [
+        {
+          "title": "Active",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Inactive",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "Suspended",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        }
+      ]
+    },
+    "entity_registry/types/RegistryAction": {
+      "title": "RegistryAction",
+      "description": "Redeemer actions",
+      "anyOf": [
+        {
+          "title": "CreateEntity",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "name",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "description",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        },
+        {
+          "title": "AddMember",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "title": "member",
+              "$ref": "#/definitions/entity_registry~1types~1Member"
+            }
+          ]
+        },
+        {
+          "title": "UpdateMemberStatus",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": [
+            {
+              "title": "member_key",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "title": "new_status",
+              "$ref": "#/definitions/entity_registry~1types~1MemberStatus"
+            }
+          ]
+        },
+        {
+          "title": "AddAdmin",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": [
+            {
+              "title": "admin_key",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            }
+          ]
+        },
+        {
+          "title": "RemoveAdmin",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": [
+            {
+              "title": "admin_key",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            }
+          ]
+        }
+      ]
+    },
+    "entity_registry/types/RegistryDatum": {
+      "title": "RegistryDatum",
+      "description": "Registry datum - stored on-chain",
+      "anyOf": [
+        {
+          "title": "RegistryDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "entity",
+              "$ref": "#/definitions/entity_registry~1types~1Entity"
+            },
+            {
+              "title": "members",
+              "$ref": "#/definitions/List$Pair$aiken~1crypto~1VerificationKeyHash_entity_registry~1types~1Member"
+            },
+            {
+              "title": "admins",
+              "$ref": "#/definitions/List$aiken~1crypto~1VerificationKeyHash"
+            }
+          ]
+        }
+      ]
+    },
+    "governance/types/GovernanceAction": {
+      "title": "GovernanceAction",
+      "description": "Redeemer actions",
+      "anyOf": [
+        {
+          "title": "CreateProposal",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "title",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "description",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "category",
+              "$ref": "#/definitions/governance~1types~1ProposalCategory"
+            },
+            {
+              "title": "voting_deadline",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "execution_data",
+              "$ref": "#/definitions/Data"
+            }
+          ]
+        },
+        {
+          "title": "CastVote",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "title": "proposal_id",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "vote",
+              "$ref": "#/definitions/governance~1types~1Vote"
+            }
+          ]
+        },
+        {
+          "title": "ExecuteProposal",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": [
+            {
+              "title": "proposal_id",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "CancelProposal",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": [
+            {
+              "title": "proposal_id",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "UpdateParams",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": [
+            {
+              "title": "new_params",
+              "$ref": "#/definitions/governance~1types~1GovernanceParams"
+            }
+          ]
+        }
+      ]
+    },
+    "governance/types/GovernanceDatum": {
+      "title": "GovernanceDatum",
+      "description": "Governance datum - stored on-chain",
+      "anyOf": [
+        {
+          "title": "GovernanceDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "entity_utxo_ref",
+              "$ref": "#/definitions/cardano~1transaction~1OutputReference"
+            },
+            {
+              "title": "treasury_utxo_ref",
+              "$ref": "#/definitions/cardano~1transaction~1OutputReference"
+            },
+            {
+              "title": "params",
+              "$ref": "#/definitions/governance~1types~1GovernanceParams"
+            },
+            {
+              "title": "proposals",
+              "$ref": "#/definitions/List$governance~1types~1Proposal"
+            },
+            {
+              "title": "next_proposal_id",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "governance/types/GovernanceParams": {
+      "title": "GovernanceParams",
+      "description": "Governance parameters",
+      "anyOf": [
+        {
+          "title": "GovernanceParams",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "approval_threshold",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "minimum_voting_period",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "quorum_percentage",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "governance/types/Proposal": {
+      "title": "Proposal",
+      "description": "Proposal data structure",
+      "anyOf": [
+        {
+          "title": "Proposal",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "title",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "description",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "category",
+              "$ref": "#/definitions/governance~1types~1ProposalCategory"
+            },
+            {
+              "title": "proposer",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "title": "creation_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "voting_deadline",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "status",
+              "$ref": "#/definitions/governance~1types~1ProposalStatus"
+            },
+            {
+              "title": "execution_data",
+              "$ref": "#/definitions/Data"
+            },
+            {
+              "title": "votes",
+              "$ref": "#/definitions/List$Pair$aiken~1crypto~1VerificationKeyHash_governance~1types~1Vote"
+            },
+            {
+              "title": "for_votes",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "against_votes",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "abstain_votes",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "governance/types/ProposalCategory": {
+      "title": "ProposalCategory",
+      "description": "Proposal categories",
+      "anyOf": [
+        {
+          "title": "TreasuryAction",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "ParameterChange",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "MembershipChange",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        },
+        {
+          "title": "Other",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": []
+        }
+      ]
+    },
+    "governance/types/ProposalStatus": {
+      "title": "ProposalStatus",
+      "description": "Types for the Governance contract\n These types represent the core data structures used for decision-making \n processes within a SACCO entity\n Proposal status enumeration",
+      "anyOf": [
+        {
+          "title": "Active",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Approved",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "Rejected",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        },
+        {
+          "title": "Executed",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": []
+        },
+        {
+          "title": "Cancelled",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": []
+        }
+      ]
+    },
+    "governance/types/Vote": {
+      "title": "Vote",
+      "description": "Vote options enumeration",
+      "anyOf": [
+        {
+          "title": "For",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Against",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "Abstain",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        }
+      ]
+    },
+    "treasury_management/types/PendingTransaction": {
+      "title": "PendingTransaction",
+      "description": "Pending transaction",
+      "anyOf": [
+        {
+          "title": "PendingTransaction",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "transaction_record",
+              "$ref": "#/definitions/treasury_management~1types~1TransactionRecord"
+            },
+            {
+              "title": "approvals",
+              "$ref": "#/definitions/List$aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "title": "required_approvals",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "treasury_management/types/SerializableValue": {
+      "title": "SerializableValue",
+      "description": "Types for the Treasury Management contract\n These types represent the core data structures used for financial operations\n in a SACCO entity\n Serializable representation of Value for on-chain storage\n Instead of using the opaque Value type directly, we use a serializable\n representation that can be converted to/from Value when needed",
+      "anyOf": [
+        {
+          "title": "SerializableValue",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "policies",
+              "$ref": "#/definitions/List$Pair$ByteArray_List$Pair$ByteArray_Int"
+            }
+          ]
+        }
+      ]
+    },
+    "treasury_management/types/TransactionRecord": {
+      "title": "TransactionRecord",
+      "description": "Transaction record",
+      "anyOf": [
+        {
+          "title": "TransactionRecord",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "transaction_type",
+              "$ref": "#/definitions/treasury_management~1types~1TransactionType"
+            },
+            {
+              "title": "amount",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "member",
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            },
+            {
+              "title": "time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "description",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        }
+      ]
+    },
+    "treasury_management/types/TransactionType": {
+      "title": "TransactionType",
+      "description": "Transaction types",
+      "anyOf": [
+        {
+          "title": "Contribution",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Withdrawal",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        },
+        {
+          "title": "Loan",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": []
+        },
+        {
+          "title": "LoanRepayment",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": []
+        },
+        {
+          "title": "AdminFee",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": []
+        }
+      ]
+    },
+    "treasury_management/types/TreasuryAction": {
+      "title": "TreasuryAction",
+      "description": "Redeemer actions",
+      "anyOf": [
+        {
+          "title": "Contribute",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "amount",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "description",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        },
+        {
+          "title": "ProposeTransaction",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "title": "transaction",
+              "$ref": "#/definitions/treasury_management~1types~1TransactionRecord"
+            }
+          ]
+        },
+        {
+          "title": "ApproveTransaction",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": [
+            {
+              "title": "transaction_index",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "ExecuteTransaction",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": [
+            {
+              "title": "transaction_index",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        },
+        {
+          "title": "CancelTransaction",
+          "dataType": "constructor",
+          "index": 4,
+          "fields": [
+            {
+              "title": "transaction_index",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "treasury_management/types/TreasuryDatum": {
+      "title": "TreasuryDatum",
+      "description": "Treasury datum - stored on-chain",
+      "anyOf": [
+        {
+          "title": "TreasuryDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "entity_utxo_ref",
+              "$ref": "#/definitions/cardano~1transaction~1OutputReference"
+            },
+            {
+              "title": "balance",
+              "$ref": "#/definitions/treasury_management~1types~1SerializableValue"
+            },
+            {
+              "title": "transaction_history",
+              "$ref": "#/definitions/List$treasury_management~1types~1TransactionRecord"
+            },
+            {
+              "title": "pending_transactions",
+              "$ref": "#/definitions/List$treasury_management~1types~1PendingTransaction"
+            },
+            {
+              "title": "approval_thresholds",
+              "$ref": "#/definitions/List$Pair$treasury_management~1types~1TransactionType_Int"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
