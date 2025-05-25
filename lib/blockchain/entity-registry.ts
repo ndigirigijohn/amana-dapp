@@ -70,11 +70,7 @@ async initialize(walletName: string): Promise<void> {
     try {
       console.log('BrowserEntityRegistry: Starting initialization with wallet:', walletName);
       
-      // Connect to wallet using Mesh SDK
-      const wallet = await BrowserWallet.enable(walletName);
-      console.log('BrowserEntityRegistry: Wallet enabled successfully');
-      
-      // Initialize Lucid with Blockfrost
+      // Initialize Lucid with Blockfrost first
       console.log('BrowserEntityRegistry: Initializing Lucid with network:', this.config.network);
       console.log('BrowserEntityRegistry: Blockfrost URL:', this.config.blockfrostUrl);
       
@@ -88,9 +84,64 @@ async initialize(walletName: string): Promise<void> {
       
       console.log('BrowserEntityRegistry: Lucid initialized');
 
-      // Connect wallet to Lucid
-      this.lucid.selectWallet.fromAPI(wallet);
-      console.log('BrowserEntityRegistry: Wallet connected to Lucid');
+      // Connect to wallet using the CIP-30 API directly instead of Mesh SDK
+      if (typeof window !== 'undefined' && (window as any).cardano) {
+        console.log('BrowserEntityRegistry: Connecting to wallet via CIP-30...');
+        
+        let walletApi;
+        const cardanoWallets = (window as any).cardano;
+        
+        // Try to connect to the specific wallet
+        switch (walletName.toLowerCase()) {
+          case 'nami':
+            if (cardanoWallets.nami) {
+              walletApi = await cardanoWallets.nami.enable();
+            }
+            break;
+          case 'eternl':
+            if (cardanoWallets.eternl) {
+              walletApi = await cardanoWallets.eternl.enable();
+            }
+            break;
+          case 'lace':
+            if (cardanoWallets.lace) {
+              walletApi = await cardanoWallets.lace.enable();
+            }
+            break;
+          case 'flint':
+            if (cardanoWallets.flint) {
+              walletApi = await cardanoWallets.flint.enable();
+            }
+            break;
+          case 'yoroi':
+            if (cardanoWallets.yoroi) {
+              walletApi = await cardanoWallets.yoroi.enable();
+            }
+            break;
+          default:
+            // Try a generic approach
+            const walletKey = Object.keys(cardanoWallets).find(
+              key => key.toLowerCase() === walletName.toLowerCase()
+            );
+            if (walletKey && cardanoWallets[walletKey]) {
+              walletApi = await cardanoWallets[walletKey].enable();
+            }
+            break;
+        }
+
+        if (!walletApi) {
+          throw new Error(`Wallet ${walletName} not found or not available`);
+        }
+
+        console.log('BrowserEntityRegistry: Wallet API obtained, connecting to Lucid...');
+        
+        // Connect wallet to Lucid using the CIP-30 API
+        this.lucid.selectWallet.fromAPI(walletApi);
+        console.log('BrowserEntityRegistry: Wallet connected to Lucid');
+
+      } else {
+        throw new Error('Browser wallet API not available');
+      }
 
       // Get contract address
       const network = this.lucid.config().network as Network;
@@ -107,6 +158,7 @@ async initialize(walletName: string): Promise<void> {
       );
     }
   }
+
   /**
    * Create a new SACCO entity on the blockchain
    * @param name - Entity name
@@ -130,86 +182,57 @@ async createEntity(name: string, description: string): Promise<CreateEntityResul
     try {
       console.log(`Creating entity: ${name}`);
       
-      // Get founder VKH from saved wallet info to avoid deserialization issues
-      const savedWallet = localStorage.getItem('amana_wallet_connection');
-      if (!savedWallet) {
-        throw new Error('Wallet connection not found. Please reconnect your wallet.');
-      }
-      
-      const walletInfo = JSON.parse(savedWallet);
-      const founderVkh = walletInfo.verificationKeyHash;
-      console.log('Using saved founder VKH:', founderVkh);
-      
       console.log('Building transaction...');
       
-      try {
-        // Build a simple transaction without complex operations
-        const utxos = await this.lucid.wallet().getUtxos();
-        console.log(`Found ${utxos.length} UTXOs`);
-        
-        if (utxos.length === 0) {
-          throw new Error('No UTXOs found in wallet. Please ensure you have funds.');
-        }
-        
-        // Create transaction
-        const tx = this.lucid.newTx();
-        
-        // Add payment to contract
-        tx.payToAddress(this.contractAddress, { lovelace: 2000000 });
-        
-        // Complete the transaction
-        const completedTx = await tx.complete();
-        console.log('Transaction completed');
-        
-        // Sign the transaction
-        const signedTx = await completedTx.sign().complete();
-        console.log('Transaction signed');
-        
-        // Submit the transaction
-        const txHash = await signedTx.submit();
-        console.log('Transaction submitted:', txHash);
-        
-        // Generate a unique entity ID for frontend tracking
-        const entityId = `entity-${Date.now()}-${txHash.slice(-8)}`;
-        
-        const result: CreateEntityResult = {
-          txHash,
-          contractAddress: this.contractAddress,
-          entityId
-        };
-
-        console.log(`Entity creation transaction submitted:`, result);
-        
-        return result;
-        
-      } catch (txError) {
-        console.error('Transaction building error:', txError);
-        
-        // If the above fails, try the most basic transaction possible
-        console.log('Trying fallback transaction method...');
-        
-        const tx = this.lucid.newTx()
-          .payToAddress(this.contractAddress, { lovelace: 2000000 });
-          
-        const complete = await tx.complete();
-        const signed = await complete.sign().complete();
-        const txHash = await signed.submit();
-        
-        const entityId = `entity-${Date.now()}-${txHash.slice(-8)}`;
-        
-        return {
-          txHash,
-          contractAddress: this.contractAddress,
-          entityId
-        };
+      // Check UTXOs first
+      const utxos = await this.lucid.wallet().getUtxos();
+      console.log(`Found ${utxos.length} UTXOs`);
+      
+      if (utxos.length === 0) {
+        throw new Error('No UTXOs found in wallet. Please ensure you have funds.');
       }
+
+      // Check wallet balance
+      const walletAddress = await this.lucid.wallet().address();
+      console.log('Wallet address:', walletAddress);
+      
+      // Build transaction using correct Lucid Evolution API
+      console.log('Creating transaction...');
+      const tx = this.lucid
+        .newTx()
+        .pay.ToAddress(this.contractAddress, { lovelace: BigInt(2000000) });
+      
+      console.log('Completing transaction...');
+      const completedTx = await tx.complete();
+      console.log('Transaction completed successfully');
+      
+      console.log('Signing transaction...');
+      const signedTx = await completedTx.sign.withWallet().complete();
+      console.log('Transaction signed successfully');
+      
+      console.log('Submitting transaction...');
+      const txHash = await signedTx.submit();
+      console.log('Transaction submitted:', txHash);
+      
+      // Generate a unique entity ID for frontend tracking
+      const entityId = `entity-${Date.now()}-${txHash.slice(-8)}`;
+      
+      const result: CreateEntityResult = {
+        txHash,
+        contractAddress: this.contractAddress,
+        entityId
+      };
+
+      console.log(`Entity creation transaction submitted:`, result);
+      
+      return result;
       
     } catch (error) {
       console.error('Entity creation failed:', error);
       
       // Check for specific error types
       if (error instanceof Error) {
-        if (error.message.includes('Insufficient')) {
+        if (error.message.includes('Insufficient') || error.message.includes('insufficient')) {
           throw new TransactionError(
             'Insufficient funds. Please ensure you have at least 5 ADA in your wallet.',
             error
@@ -219,9 +242,19 @@ async createEntity(name: string, description: string): Promise<CreateEntityResul
             'Transaction was cancelled by the user.',
             error
           );
-        } else if (error.message.includes('UTXOs')) {
+        } else if (error.message.includes('UTXOs') || error.message.includes('utxos')) {
           throw new TransactionError(
             'No UTXOs found. Please ensure your wallet has funds.',
+            error
+          );
+        } else if (error.message.includes('Deserialization') || error.message.includes('Invalid internal structure')) {
+          throw new TransactionError(
+            'Wallet data format error. Please try disconnecting and reconnecting your wallet.',
+            error
+          );
+        } else if (error.message.includes('hex string expected')) {
+          throw new TransactionError(
+            'Wallet data format error. Please try reconnecting your wallet.',
             error
           );
         }
@@ -233,6 +266,7 @@ async createEntity(name: string, description: string): Promise<CreateEntityResul
       );
     }
   }
+
   /**
    * Wait for transaction confirmation
    * @param txHash - Transaction hash to wait for
@@ -308,4 +342,13 @@ export function createEntityRegistry(config?: Partial<BlockchainConfig>): Browse
   }
 
   return new BrowserEntityRegistry(defaultConfig);
+}
+
+// Type assertion helper for wallet APIs
+interface WalletApi {
+  enable(): Promise<any>;
+  isEnabled(): Promise<boolean>;
+  apiVersion: string;
+  name: string;
+  icon: string;
 }
