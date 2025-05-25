@@ -123,17 +123,23 @@ export default function EntityRegistrationForm() {
 
       setTxStatus(TransactionStatus.SUBMITTING);
 
-      // Initialize registry if not already done
-      if (!isInitialized && !isInitializing) {
+ // Initialize registry if not already done
+      if (!isInitialized) {
+        console.log('EntityRegistrationForm: Registry not initialized, initializing now...');
         toast({
           title: "Initializing blockchain connection",
           description: "Connecting to the Cardano network..."
         });
         
         const initialized = await initializeRegistry();
+        console.log('EntityRegistrationForm: Initialization result:', initialized);
+        
         if (!initialized) {
           throw new Error("Failed to initialize blockchain connection");
         }
+        
+        // Small delay to ensure state is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       // Create entity on blockchain
@@ -142,9 +148,16 @@ export default function EntityRegistrationForm() {
         description: "Please confirm the transaction in your wallet"
       });
 
+      console.log('EntityRegistrationForm: Calling createEntity...');
       const result = await createEntity(entityData.name, entityData.description);
+      console.log('EntityRegistrationForm: createEntity result:', result);
       
       if (!result) {
+        console.error('EntityRegistrationForm: createEntity returned null');
+        // Check if there's a specific error message
+        if (error) {
+          throw new Error(error);
+        }
         throw new Error("Failed to create entity on blockchain");
       }
 

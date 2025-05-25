@@ -1,7 +1,7 @@
 // offchain/deployment/deploy-entity-registry.ts
-import { env } from '../config';
-import { loadValidators } from '../utils/validators';
-import { initLucid, getVerificationKeyHash, createValidator, waitForTx } from '../utils/lucid-helpers';
+import { env } from './config';
+import { loadValidators } from './utils/validators';
+import { initLucid, getVerificationKeyHash, createValidator, waitForTx } from './utils/lucid-helpers';
 // Import utils and additional types needed
 import { validatorToAddress } from '@lucid-evolution/utils';
 import { Data, SpendingValidator } from '@lucid-evolution/lucid';
