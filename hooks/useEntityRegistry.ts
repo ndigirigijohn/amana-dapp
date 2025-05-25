@@ -38,10 +38,16 @@ export function useEntityRegistry(): UseEntityRegistryReturn {
   // Registry instance ref
   const registryRef = useRef<BrowserEntityRegistry | null>(null);
 
-// Initialize the blockchain connection
+  // Initialize the blockchain connection
   const initializeRegistry = useCallback(async (): Promise<boolean> => {
-    if (isInitialized || isInitializing) {
-      return isInitialized;
+    if (isInitialized) {
+      console.log('Registry already initialized');
+      return true;
+    }
+
+    if (isInitializing) {
+      console.log('Registry initialization already in progress');
+      return false;
     }
 
     setIsInitializing(true);
@@ -104,28 +110,29 @@ export function useEntityRegistry(): UseEntityRegistryReturn {
     }
   }, [isInitialized, isInitializing]);
 
-// Create a new entity
+  // Create a new entity
   const createEntity = useCallback(async (
     name: string, 
     description: string
   ): Promise<CreateEntityResult | null> => {
     console.log('useEntityRegistry: createEntity called with:', { name, description });
-    console.log('useEntityRegistry: Current state:', {
-      hasRegistry: !!registryRef.current,
-      isInitialized,
-      isInitializing
-    });
     
-    // If we have a registry instance but isInitialized is false, 
-    // it might be a state sync issue
-    if (registryRef.current && !isInitialized) {
-      console.log('useEntityRegistry: Registry exists but state shows not initialized, updating state');
-      setIsInitialized(true);
+    // Ensure registry is initialized
+    if (!isInitialized || !registryRef.current) {
+      console.log('useEntityRegistry: Registry not initialized, initializing now...');
+      const initialized = await initializeRegistry();
+      if (!initialized) {
+        console.error('useEntityRegistry: Failed to initialize registry');
+        setError('Failed to initialize blockchain connection. Please try again.');
+        return null;
+      }
+      // Wait a bit for state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
     
     if (!registryRef.current) {
-      console.error('useEntityRegistry: Registry not initialized');
-      setError('Registry not initialized. Please try again.');
+      console.error('useEntityRegistry: Registry still not available after initialization');
+      setError('Registry not available. Please try again.');
       return null;
     }
 
@@ -161,13 +168,15 @@ export function useEntityRegistry(): UseEntityRegistryReturn {
     } finally {
       setIsCreatingEntity(false);
     }
-  }, [isInitialized]);
+  }, [isInitialized, initializeRegistry]);
   
 
   // Wait for transaction confirmation
   const waitForConfirmation = useCallback(async (txHash: string): Promise<boolean> => {
-    if (!registryRef.current || !isInitialized) {
-      setError('Registry not initialized');
+    // Ensure registry is available
+    if (!registryRef.current) {
+      console.error('Registry not available for confirmation');
+      setError('Registry not available for confirmation');
       return false;
     }
 
@@ -175,19 +184,33 @@ export function useEntityRegistry(): UseEntityRegistryReturn {
     setError(null);
 
     try {
+      console.log('Waiting for transaction confirmation:', txHash);
       await registryRef.current.waitForConfirmation(txHash);
-      console.log('Transaction confirmed:', txHash);
+      console.log('Transaction confirmed successfully:', txHash);
       return true;
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Transaction confirmation failed';
       console.error('Confirmation error:', err);
-      setError(errorMessage);
+      
+      // More specific error handling for confirmation failures
+      if (err instanceof Error) {
+        if (err.message.includes('timeout') || err.message.includes('Timeout')) {
+          setError('Transaction confirmation timed out. Your transaction may still be processing on the blockchain.');
+        } else if (err.message.includes('rejected') || err.message.includes('failed')) {
+          setError('Transaction was rejected by the network. Please check your transaction and try again.');
+        } else {
+          setError(`Transaction confirmation failed: ${errorMessage}`);
+        }
+      } else {
+        setError('Transaction confirmation failed with an unknown error');
+      }
+      
       return false;
     } finally {
       setIsWaitingForConfirmation(false);
     }
-  }, [isInitialized]);
+  }, []);
 
   // Clear error
   const clearError = useCallback(() => {
