@@ -100,130 +100,155 @@ export default function EntityRegistrationForm() {
     setEntityData(prev => ({ ...prev, [name]: checked }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!connectedWallet) {
-      toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet to create an entity",
-        variant: "destructive"
-      });
-      return;
+// Replace the handleSubmit function with this improved version:
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  if (!connectedWallet) {
+    toast({
+      title: "Wallet not connected",
+      description: "Please connect your wallet to create an entity",
+      variant: "destructive"
+    });
+    return;
+  }
+
+  // Clear any previous errors
+  clearError();
+  
+  try {
+    // Validate form data
+    if (!entityData.name || !entityData.description) {
+      throw new Error("Entity name and description are required");
     }
 
-    // Clear any previous errors
-    clearError();
+    setTxStatus(TransactionStatus.SUBMITTING);
+
+    // Initialize registry if not already done
+    if (!isInitialized) {
+      console.log('EntityRegistrationForm: Registry not initialized, initializing now...');
+      toast({
+        title: "Initializing blockchain connection",
+        description: "Connecting to the Cardano network..."
+      });
+      
+      const initialized = await initializeRegistry();
+      console.log('EntityRegistrationForm: Initialization result:', initialized);
+      
+      if (!initialized) {
+        throw new Error("Failed to initialize blockchain connection");
+      }
+      
+      // Small delay to ensure state is updated
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // Create entity on blockchain
+    toast({
+      title: "Creating entity on blockchain",
+      description: "Please confirm the transaction in your wallet"
+    });
+
+    console.log('EntityRegistrationForm: Calling createEntity...');
+    const result = await createEntity(entityData.name, entityData.description);
+    console.log('EntityRegistrationForm: createEntity result:', result);
     
-    try {
-      // Validate form data
-      if (!entityData.name || !entityData.description) {
-        throw new Error("Entity name and description are required");
+    if (!result) {
+      console.error('EntityRegistrationForm: createEntity returned null');
+      // Check if there's a specific error message
+      if (error) {
+        throw new Error(error);
       }
+      throw new Error("Failed to create entity on blockchain");
+    }
 
-      setTxStatus(TransactionStatus.SUBMITTING);
+    setCurrentTxHash(result.txHash);
+    setTxStatus(TransactionStatus.SUBMITTED);
 
- // Initialize registry if not already done
-      if (!isInitialized) {
-        console.log('EntityRegistrationForm: Registry not initialized, initializing now...');
-        toast({
-          title: "Initializing blockchain connection",
-          description: "Connecting to the Cardano network..."
-        });
-        
-        const initialized = await initializeRegistry();
-        console.log('EntityRegistrationForm: Initialization result:', initialized);
-        
-        if (!initialized) {
-          throw new Error("Failed to initialize blockchain connection");
-        }
-        
-        // Small delay to ensure state is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
+    toast({
+      title: "Transaction submitted!",
+      description: `Transaction hash: ${result.txHash.slice(0, 16)}...`,
+    });
 
-      // Create entity on blockchain
+    // Wait for confirmation
+    setTxStatus(TransactionStatus.CONFIRMING);
+    
+    toast({
+      title: "Waiting for confirmation",
+      description: "Your transaction is being processed on the blockchain..."
+    });
+
+    const confirmed = await waitForConfirmation(result.txHash);
+    
+    if (!confirmed) {
+      // Don't throw an error here - the transaction might still be valid
+      // Just show a warning and proceed
       toast({
-        title: "Creating entity on blockchain",
-        description: "Please confirm the transaction in your wallet"
+        title: "Confirmation timeout",
+        description: "Transaction may still be processing. Check your wallet or block explorer.",
+        variant: "destructive"
       });
-
-      console.log('EntityRegistrationForm: Calling createEntity...');
-      const result = await createEntity(entityData.name, entityData.description);
-      console.log('EntityRegistrationForm: createEntity result:', result);
       
-      if (!result) {
-        console.error('EntityRegistrationForm: createEntity returned null');
-        // Check if there's a specific error message
-        if (error) {
-          throw new Error(error);
-        }
-        throw new Error("Failed to create entity on blockchain");
-      }
+      // Still proceed with saving the entity locally
+      console.log('Proceeding despite confirmation timeout...');
+    }
 
-      setCurrentTxHash(result.txHash);
-      setTxStatus(TransactionStatus.SUBMITTED);
+    setTxStatus(TransactionStatus.CONFIRMED);
 
+    // Create entity object for localStorage (backward compatibility)
+    const newEntity: EntityData = {
+      ...entityData,
+      id: result.entityId,
+      founder: connectedWallet.verificationKeyHash,
+      creationDate: Date.now(),
+      txHash: result.txHash,
+      contractAddress: result.contractAddress,
+      blockchainEntityId: result.entityId
+    };
+
+    // Store in localStorage for dashboard compatibility
+    const storedEntities = localStorage.getItem('amana_entities');
+    const entities = storedEntities ? JSON.parse(storedEntities) : [];
+    entities.push(newEntity);
+    localStorage.setItem('amana_entities', JSON.stringify(entities));
+    localStorage.setItem('amana_current_entity', JSON.stringify(newEntity));
+
+    toast({
+      title: "Entity created successfully!",
+      description: "Your SACCO entity has been registered on the blockchain",
+    });
+
+    // Redirect to dashboard after a short delay
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 2000);
+    
+  } catch (error) {
+    console.error('Entity creation error:', error);
+    setTxStatus(TransactionStatus.FAILED);
+    
+    let errorMessage = "An unexpected error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
+    // Show more user-friendly error messages
+    if (errorMessage.includes("confirmation timeout") || errorMessage.includes("Timeout")) {
       toast({
-        title: "Transaction submitted!",
-        description: `Transaction hash: ${result.txHash.slice(0, 16)}...`,
+        title: "Transaction may still be processing",
+        description: "Your transaction was submitted but confirmation timed out. Check your wallet or a block explorer to verify.",
+        variant: "destructive"
       });
-
-      // Wait for confirmation
-      setTxStatus(TransactionStatus.CONFIRMING);
-      
-      toast({
-        title: "Waiting for confirmation",
-        description: "Your transaction is being processed on the blockchain..."
-      });
-
-      const confirmed = await waitForConfirmation(result.txHash);
-      
-      if (!confirmed) {
-        throw new Error("Transaction failed to confirm");
-      }
-
-      setTxStatus(TransactionStatus.CONFIRMED);
-
-      // Create entity object for localStorage (backward compatibility)
-      const newEntity: EntityData = {
-        ...entityData,
-        id: result.entityId,
-        founder: connectedWallet.verificationKeyHash,
-        creationDate: Date.now(),
-        txHash: result.txHash,
-        contractAddress: result.contractAddress,
-        blockchainEntityId: result.entityId
-      };
-
-      // Store in localStorage for dashboard compatibility
-      const storedEntities = localStorage.getItem('amana_entities');
-      const entities = storedEntities ? JSON.parse(storedEntities) : [];
-      entities.push(newEntity);
-      localStorage.setItem('amana_entities', JSON.stringify(entities));
-      localStorage.setItem('amana_current_entity', JSON.stringify(newEntity));
-
-      toast({
-        title: "Entity created successfully!",
-        description: "Your SACCO entity has been registered on the blockchain",
-      });
-
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 2000);
-      
-    } catch (error) {
-      console.error('Entity creation error:', error);
-      setTxStatus(TransactionStatus.FAILED);
-      
+    } else {
       toast({
         title: "Error creating entity",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive"
       });
     }
-  };
+  }
+};
 
   // Get progress percentage based on transaction status
   const getProgress = () => {

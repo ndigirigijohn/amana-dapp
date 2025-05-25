@@ -277,14 +277,46 @@ async createEntity(name: string, description: string): Promise<CreateEntityResul
     }
 
     try {
-      await this.lucid.awaitTx(txHash);
-      console.log(`Transaction confirmed: ${txHash}`);
+      console.log(`Waiting for transaction confirmation: ${txHash}`);
+      
+      // Set a longer timeout for testnet
+      const timeoutMs = 300000; // 5 minutes
+      const startTime = Date.now();
+      
+      // Use Promise.race to add our own timeout
+      await Promise.race([
+        this.lucid.awaitTx(txHash),
+        new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(new Error(`Transaction confirmation timeout after ${timeoutMs / 1000} seconds`));
+          }, timeoutMs);
+        })
+      ]);
+      
+      const elapsedTime = Date.now() - startTime;
+      console.log(`Transaction confirmed: ${txHash} (took ${elapsedTime}ms)`);
+      
     } catch (error) {
       console.error('Transaction confirmation failed:', error);
-      throw new TransactionError(
-        'Transaction failed to confirm',
-        error as Error
-      );
+      
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+          throw new TransactionError(
+            `Transaction confirmation timed out. Transaction hash: ${txHash}. You can check the status manually on a Cardano block explorer.`,
+            error
+          );
+        } else {
+          throw new TransactionError(
+            `Transaction failed to confirm: ${error.message}`,
+            error
+          );
+        }
+      } else {
+        throw new TransactionError(
+          'Transaction failed to confirm with unknown error',
+          error as Error
+        );
+      }
     }
   }
 
