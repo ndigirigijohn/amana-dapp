@@ -44,6 +44,7 @@ interface EntityData {
   txHash?: string;
   contractAddress?: string;
   blockchainEntityId?: string;
+  metadata?: any; // Add metadata field
 }
 
 // Transaction status enum
@@ -197,14 +198,15 @@ const handleSubmit = async (e: React.FormEvent) => {
     setTxStatus(TransactionStatus.CONFIRMED);
 
     // Create entity object for localStorage (backward compatibility)
-    const newEntity: EntityData = {
+     const newEntity: EntityData = {
       ...entityData,
       id: result.entityId,
       founder: connectedWallet.verificationKeyHash,
       creationDate: Date.now(),
       txHash: result.txHash,
       contractAddress: result.contractAddress,
-      blockchainEntityId: result.entityId
+      blockchainEntityId: result.entityId,
+      metadata: result.metadata // Save the metadata
     };
 
     // Store in localStorage for dashboard compatibility

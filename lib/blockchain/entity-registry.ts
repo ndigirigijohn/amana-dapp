@@ -18,6 +18,7 @@ export interface CreateEntityResult {
   txHash: TxHash;
   contractAddress: string;
   entityId: string; // For frontend tracking
+  metadata?: any; // Include the metadata that was attached
 }
 
 // Error types for better error handling
@@ -196,11 +197,25 @@ async createEntity(name: string, description: string): Promise<CreateEntityResul
       const walletAddress = await this.lucid.wallet().address();
       console.log('Wallet address:', walletAddress);
       
-      // Build transaction using correct Lucid Evolution API
-      console.log('Creating transaction...');
+      // Create metadata for the transaction (compliant with Lucid Evolution constraints)
+      const entityMetadata = {
+        "type": "sacco_entity",
+        "platform": "Amana_CE",
+        "version": "1.0",
+        "name": name.length > 60 ? name.substring(0, 60) : name,
+        "desc": description.length > 60 ? description.substring(0, 60) : description,
+        "created": Math.floor(Date.now() / 1000), // Unix timestamp as number
+        // Split wallet address into chunks to comply with 64-char limit
+        "founder_1": walletAddress.substring(0, 60),
+        "founder_2": walletAddress.substring(60) || "n/a"
+      };
+      
+      // Build transaction with metadata using correct Lucid Evolution API
+      console.log('Creating transaction with metadata...');
       const tx = this.lucid
         .newTx()
-        .pay.ToAddress(this.contractAddress, { lovelace: BigInt(2000000) });
+        .pay.ToAddress(this.contractAddress, { lovelace: BigInt(2000000) })
+        .attachMetadata(674, entityMetadata); // Add metadata to transaction
       
       console.log('Completing transaction...');
       const completedTx = await tx.complete();
@@ -220,10 +235,11 @@ async createEntity(name: string, description: string): Promise<CreateEntityResul
       const result: CreateEntityResult = {
         txHash,
         contractAddress: this.contractAddress,
-        entityId
+        entityId,
+        metadata: { 674: entityMetadata } // Wrap in proper structure for result
       };
 
-      console.log(`Entity creation transaction submitted:`, result);
+      console.log(`Entity creation transaction submitted with metadata:`, result);
       
       return result;
       
