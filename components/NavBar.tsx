@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link"
-import Image from "next/image";
-import WalletConnect from "@/components/WalletConnect";
 
 export default function NavBar() {
   const [entityExists, setEntityExists] = useState(false);
@@ -51,7 +49,7 @@ export default function NavBar() {
         </Link>
       </div>
       <div className="flex flex-1 items-center justify-end space-x-4">
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation - Minimal for landing page */}
         <nav className="hidden md:flex items-center space-x-1">
           <Link
             href="#features"
@@ -79,11 +77,10 @@ export default function NavBar() {
           </Link>
           <Link
             href={dashboardLink}
-            className="text-sm font-medium transition-colors hover:text-emerald-400 text-gray-300 px-3 py-2"
+            className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-4 py-2 rounded-xl transition-all duration-300 font-medium text-sm"
           >
-            Dashboard
+            Launch dApp
           </Link>
-          <WalletConnect/>
         </nav>
       </div>
     </div>
