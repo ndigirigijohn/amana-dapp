@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { BrowserWallet, type Asset, deserializeAddress } from '@meshsdk/core';
+import { Wallet, Copy, ExternalLink, ChevronDown, Power, User, CreditCard, Zap } from 'lucide-react';
 
-type Wallet = {
+type WalletType = {
   name: string;
   icon: string;
   version: string;
 }
 
-type ConnectedWallet = {
+type ConnectedWalletType = {
   name: string;
   address: string;
   verificationKeyHash: string;
@@ -25,15 +26,24 @@ const STORAGE_KEY = 'amana_wallet_connection';
 // Helper functions
 const truncateAddress = (address: string): string => {
   if (!address) return '';
-  return `${address.substring(0, 8)}...${address.substring(address.length - 4)}`;
+  return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+};
+
+const formatBalance = (lovelace: string): string => {
+  const ada = parseFloat(lovelace);
+  if (ada >= 1000000) return `${(ada / 1000000).toFixed(1)}M`;
+  if (ada >= 1000) return `${(ada / 1000).toFixed(1)}K`;
+  return ada.toFixed(2);
 };
 
 const WalletConnect = () => {
-  const [availableWallets, setAvailableWallets] = useState<Wallet[]>([]);
+  const [availableWallets, setAvailableWallets] = useState<WalletType[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet | null>(null);
+  const [connectedWallet, setConnectedWallet] = useState<ConnectedWalletType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedText, setCopiedText] = useState<string>('');
 
   // Check for available wallets and saved connection on component mount
   useEffect(() => {
@@ -41,14 +51,12 @@ const WalletConnect = () => {
       // Check for saved wallet connection
       const savedConnection = getSavedWalletConnection();
       if (savedConnection) {
-        console.log("Found saved wallet connection:", savedConnection.name);
         setConnectedWallet(savedConnection);
       }
 
       // Get available wallets
       try {
         const wallets = await BrowserWallet.getAvailableWallets();
-        console.log("Available wallets:", wallets);
         setAvailableWallets(wallets);
       } catch (error) {
         console.error('Error fetching available wallets:', error);
@@ -59,8 +67,20 @@ const WalletConnect = () => {
     initialize();
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isDropdownOpen) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
+
   // Retrieve saved wallet connection from local storage
-  const getSavedWalletConnection = (): ConnectedWallet | null => {
+  const getSavedWalletConnection = (): ConnectedWalletType | null => {
     try {
       const savedData = localStorage.getItem(STORAGE_KEY);
       if (!savedData) return null;
@@ -72,7 +92,7 @@ const WalletConnect = () => {
   };
 
   // Save wallet connection to local storage
-  const saveWalletConnection = (wallet: ConnectedWallet) => {
+  const saveWalletConnection = (wallet: ConnectedWalletType) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(wallet));
     } catch (error) {
@@ -80,35 +100,34 @@ const WalletConnect = () => {
     }
   };
 
+  // Copy to clipboard with feedback
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedText(label);
+      setTimeout(() => setCopiedText(''), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
   // Connect to wallet
   const connectWallet = async (walletName: string) => {
-    console.log(`Attempting to connect to wallet: ${walletName}`);
     setIsConnecting(true);
     setErrorMessage(null);
     
     try {
-      // 1. Enable the wallet
       const wallet = await BrowserWallet.enable(walletName);
-      
-      // 2. Get wallet address
       const addresses = await wallet.getUsedAddresses();
       const firstAddress = addresses.length > 0 ? addresses[0] : (await wallet.getUnusedAddresses())[0];
-      
-      // 3. Get verification key hash
       const { pubKeyHash } = deserializeAddress(firstAddress);
-      console.log('Verification Key Hash:', pubKeyHash);
       
-      // 4. Get wallet balance information
       let lovelace = "0";
       let assets: Asset[] = [];
       
       try {
-        // Try to get ADA balance
         lovelace = await wallet.getLovelace();
       } catch (error) {
-        console.error('Error fetching lovelace:', error);
-        
-        // Fallback approach
         try {
           const balance = await wallet.getBalance();
           const lovelaceAsset = balance.find(asset => asset.unit === 'lovelace');
@@ -121,12 +140,8 @@ const WalletConnect = () => {
       }
       
       try {
-        // Try to get assets
         assets = await wallet.getAssets();
       } catch (error) {
-        console.error('Error fetching assets:', error);
-        
-        // Fallback approach
         try {
           const balance = await wallet.getBalance();
           assets = balance.filter(asset => asset.unit !== 'lovelace');
@@ -135,25 +150,20 @@ const WalletConnect = () => {
         }
       }
 
-      // 5. Create wallet info object
-      const walletInfo: ConnectedWallet = {
+      const walletInfo: ConnectedWalletType = {
         name: walletName,
         address: firstAddress,
         verificationKeyHash: pubKeyHash,
         balance: {
-          lovelace: (parseInt(lovelace || "0") / 1000000).toFixed(2), // Convert to ADA
+          lovelace: (parseInt(lovelace || "0") / 1000000).toFixed(2),
           assets: assets.length
         },
         lastConnected: Date.now()
       };
 
-      // 6. Update state and save
       setConnectedWallet(walletInfo);
       saveWalletConnection(walletInfo);
-      
-      // 7. Close modal
       setIsModalOpen(false);
-      console.log('Wallet connected successfully:', walletInfo);
     } catch (error) {
       console.error('Error connecting to wallet:', error);
       setErrorMessage(`Failed to connect to ${walletName}. ${error instanceof Error ? error.message : 'Please try again.'}`);
@@ -166,203 +176,255 @@ const WalletConnect = () => {
   const disconnectWallet = () => {
     setConnectedWallet(null);
     localStorage.removeItem(STORAGE_KEY);
-    console.log('Wallet disconnected');
+    setIsDropdownOpen(false);
+  };
+
+  // Wallet button for different states
+  const renderWalletButton = () => {
+    if (connectedWallet) {
+      return (
+        <div className="relative">
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="group flex items-center space-x-3 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 rounded-2xl px-4 py-3 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center">
+                <Wallet className="w-4 h-4 text-white" />
+              </div>
+              <div className="hidden sm:block text-left">
+                <div className="text-sm font-medium text-white">{formatBalance(connectedWallet.balance.lovelace)} ₳</div>
+                <div className="text-xs text-gray-400">{truncateAddress(connectedWallet.address)}</div>
+              </div>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <div className="absolute right-0 top-full mt-2 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+              {/* Header */}
+              <div className="px-6 py-4 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-b border-gray-800">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center">
+                    <Wallet className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-emerald-400">Connected</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Balance Section */}
+              <div className="px-6 py-4 border-b border-gray-800">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-800/50 rounded-xl p-3 text-center">
+                    <div className="text-xs text-gray-400 mb-1">Balance</div>
+                    <div className="text-lg font-bold text-emerald-400">{connectedWallet.balance.lovelace} ₳</div>
+                  </div>
+                  <div className="bg-gray-800/50 rounded-xl p-3 text-center">
+                    <div className="text-xs text-gray-400 mb-1">Assets</div>
+                    <div className="text-lg font-bold text-cyan-400">{connectedWallet.balance.assets}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address Section */}
+              <div className="px-6 py-4 border-b border-gray-800">
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-xs text-gray-400 mb-2">Wallet Address</div>
+                    <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-sm font-mono text-gray-300 flex-1 truncate">
+                        {connectedWallet.address}
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(connectedWallet.address, 'address')}
+                        className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <Copy className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </div>
+                    {copiedText === 'address' && (
+                      <div className="text-xs text-emerald-400 mt-1">Address copied!</div>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-gray-400 mb-2">Verification Key Hash</div>
+                    <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-sm font-mono text-gray-300 flex-1 truncate">
+                        {connectedWallet.verificationKeyHash}
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(connectedWallet.verificationKeyHash, 'vkh')}
+                        className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <Copy className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </div>
+                    {copiedText === 'vkh' && (
+                      <div className="text-xs text-emerald-400 mt-1">VKH copied!</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="px-6 py-4">
+                <div className="space-y-2">
+                  <button
+                    onClick={() => window.open(`https://preview.cardanoscan.io/address/${connectedWallet.address}`, '_blank')}
+                    className="w-full flex items-center justify-center space-x-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl py-2.5 transition-all duration-200"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>View on Explorer</span>
+                  </button>
+                  <button
+                    onClick={disconnectWallet}
+                    className="w-full flex items-center justify-center space-x-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl py-2.5 transition-all duration-200"
+                  >
+                    <Power className="w-4 h-4" />
+                    <span>Disconnect</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <button
+        onClick={() => setIsModalOpen(true)}
+        disabled={isConnecting}
+        className="group bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 disabled:from-gray-600 disabled:to-gray-600 px-6 py-3 rounded-xl text-white font-medium transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 disabled:shadow-none flex items-center space-x-2"
+      >
+        {isConnecting ? (
+          <>
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <span>Connecting...</span>
+          </>
+        ) : (
+          <>
+            <Wallet className="w-4 h-4" />
+            <span>Connect Wallet</span>
+          </>
+        )}
+      </button>
+    );
   };
 
   return (
-    <div className="relative">
-      {/* Connect/Disconnect Button */}
-      {connectedWallet ? (
-        <div className="flex items-center space-x-3">
-          <div className="hidden md:block">
-            <div className="text-xs text-gray-400">
-              {truncateAddress(connectedWallet.address)}
-            </div>
-            <div className="text-sm font-medium text-white">
-              {connectedWallet.balance.lovelace} ₳
-            </div>
-          </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="py-2 px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-xl flex items-center transition-colors border border-emerald-500/30 hover:border-emerald-500/50"
-            aria-label="Wallet details"
-          >
-            <span className="mr-1.5 hidden sm:inline font-medium">{connectedWallet.name}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.53 5.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H5a.75.75 0 0 1 0-1.5h8.75l-3.22-3.22a.75.75 0 0 1 0-1.06Z" />
-            </svg>
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="py-2 px-4 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white rounded-xl transition-all duration-300 font-medium shadow-lg shadow-emerald-500/25"
-          disabled={isConnecting}
-          aria-label="Connect wallet"
-        >
-          {isConnecting ? (
-            <div className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Connecting...
-            </div>
-          ) : "Connect Wallet"}
-        </button>
-      )}
+    <>
+      {renderWalletButton()}
 
-      {/* Modal Overlay */}
+      {/* Connection Modal */}
       {isModalOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-end z-50"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-md w-full h-auto max-h-[90vh] overflow-y-auto mr-4 mt-20 animate-in fade-in slide-in-from-right duration-200"
+            className="bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button (X) positioned absolutely in the top-right corner */}
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors rounded-full p-1.5 hover:bg-gray-800"
-              aria-label="Close modal"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-            </button>
-            
-            <div className="p-5 pt-12 border-b border-gray-800">
-              <h3 className="text-lg font-bold text-white">
-                {connectedWallet ? 'Wallet Connected' : 'Connect Wallet'}
-              </h3>
+            {/* Header */}
+            <div className="p-6 border-b border-gray-800 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center">
+                    <Wallet className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Connect Wallet</h3>
+                    <p className="text-sm text-gray-400">Choose your preferred Cardano wallet</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 hover:bg-gray-800 rounded-xl transition-colors"
+                >
+                  <div className="w-5 h-5 text-gray-400">×</div>
+                </button>
+              </div>
             </div>
             
-            <div className="p-5">
+            {/* Content */}
+            <div className="p-6">
               {errorMessage && (
-                <div className="mb-5 p-3 bg-red-500/10 text-red-400 rounded-lg text-sm flex items-start border border-red-500/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 mt-0.5 shrink-0">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" x2="12" y1="8" y2="12" />
-                    <line x1="12" x2="12.01" y1="16" y2="16" />
-                  </svg>
-                  <span>{errorMessage}</span>
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-start space-x-3">
+                  <div className="w-5 h-5 text-red-400 mt-0.5">⚠</div>
+                  <div>{errorMessage}</div>
                 </div>
               )}
 
-              {connectedWallet ? (
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-white">Wallet</span>
-                    <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-sm font-medium border border-emerald-500/30">{connectedWallet.name}</span>
+              {availableWallets.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Wallet className="w-8 h-8 text-gray-500" />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <span className="font-medium text-white">Address</span>
-                    <div className="bg-gray-800 p-3 rounded-lg text-sm break-all font-mono border border-gray-700 text-gray-300">
-                      {connectedWallet.address}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <span className="font-medium text-white">Verification Key Hash</span>
-                    <div className="bg-gray-800 p-3 rounded-lg text-sm break-all font-mono border border-gray-700 text-gray-300">
-                      {connectedWallet.verificationKeyHash}
-                    </div>
-                    <div className="flex justify-end">
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(connectedWallet.verificationKeyHash);
-                          alert("Verification Key Hash copied to clipboard!");
-                        }}
-                        className="text-emerald-400 text-xs flex items-center hover:underline"
+                  <h4 className="text-lg font-medium text-white mb-2">No Wallets Found</h4>
+                  <p className="text-sm text-gray-400 mb-6">Please install a Cardano wallet extension to continue</p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {[
+                      { name: 'Eternl', url: 'https://eternl.io' },
+                      { name: 'Nami', url: 'https://namiwallet.io' },
+                      { name: 'Lace', url: 'https://www.lace.io' },
+                    ].map((wallet) => (
+                      <a
+                        key={wallet.name}
+                        href={wallet.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-emerald-500/50 rounded-xl transition-all duration-200"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-                        </svg>
-                        Copy to clipboard
-                      </button>
-                    </div>
+                        <span className="text-white font-medium">Install {wallet.name}</span>
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </a>
+                    ))}
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg bg-gray-800 border border-gray-700 space-y-1 text-center">
-                      <span className="text-sm font-medium text-gray-400">Balance</span>
-                      <p className="text-2xl font-bold text-emerald-400">{connectedWallet.balance.lovelace} ₳</p>
-                    </div>
-                    <div className="p-4 rounded-lg bg-gray-800 border border-gray-700 space-y-1 text-center">
-                      <span className="text-sm font-medium text-gray-400">Assets</span>
-                      <p className="text-2xl font-bold text-cyan-400">{connectedWallet.balance.assets}</p>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={disconnectWallet}
-                    className="w-full py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors font-medium mt-2 border border-red-500/30 hover:border-red-500/50"
-                  >
-                    Disconnect
-                  </button>
                 </div>
               ) : (
-                <div className="space-y-5">
-                  <p className="text-gray-400">
-                    Select a wallet to connect to this application:
-                  </p>
+                <div className="space-y-3">
+                  <p className="text-gray-400 text-sm mb-4">Select a wallet to connect:</p>
                   
-                  {availableWallets.length === 0 ? (
-                    <div className="py-10 text-center space-y-3">
-                      <div className="bg-gray-800 p-3 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                        </svg>
+                  {availableWallets.map((wallet) => (
+                    <button
+                      key={wallet.name}
+                      onClick={() => connectWallet(wallet.name)}
+                      disabled={isConnecting}
+                      className="w-full flex items-center space-x-4 p-4 bg-gray-800/30 hover:bg-gray-800/60 disabled:bg-gray-800/20 border border-gray-700 hover:border-emerald-500/50 disabled:border-gray-700 rounded-xl transition-all duration-200 group"
+                    >
+                      {wallet.icon && (
+                        <div className="w-12 h-12 flex-shrink-0">
+                          <img 
+                            src={wallet.icon} 
+                            alt={`${wallet.name} icon`} 
+                            className="w-full h-full object-contain rounded-lg"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 text-left">
+                        <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">
+                          {wallet.name}
+                        </div>
+                        <div className="text-xs text-gray-400">Version {wallet.version}</div>
                       </div>
-                      <p className="text-gray-400">No wallets found</p>
-                      <p className="text-sm text-gray-500">Please install a Cardano wallet extension</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-3">
-                      {availableWallets.map((wallet) => (
-                        <button
-                          key={wallet.name}
-                          onClick={() => connectWallet(wallet.name)}
-                          disabled={isConnecting}
-                          className="flex items-center p-4 border border-gray-700 rounded-lg hover:bg-gray-800 hover:border-emerald-500/50 transition-colors group relative"
-                        >
-                          {wallet.icon && (
-                            <div className="h-10 w-10 mr-3 flex-shrink-0">
-                              <img 
-                                src={wallet.icon} 
-                                alt={`${wallet.name} icon`} 
-                                className="h-full w-full object-contain"
-                              />
-                            </div>
-                          )}
-                          <div className="text-left">
-                            <div className="font-medium text-white">{wallet.name}</div>
-                            <div className="text-xs text-gray-400">Version {wallet.version}</div>
-                          </div>
-                          <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
-                              <path d="M5 12h14" />
-                              <path d="m12 5 7 7-7 7" />
-                            </svg>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                      <div className="text-gray-400 group-hover:text-emerald-400 transition-colors">
+                        →
+                      </div>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
-export default WalletConnect;
+export default WalletConnect; 
