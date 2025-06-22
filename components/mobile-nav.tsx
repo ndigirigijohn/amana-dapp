@@ -42,51 +42,44 @@ export default function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden text-white hover:bg-white/10">
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-gray-900 border-gray-800">
         <nav className="flex flex-col gap-4 mt-8">
           <Link
             href="#features"
-            className="text-lg font-medium transition-colors hover:text-primary px-3 py-2"
+            className="text-lg font-medium transition-colors hover:text-emerald-400 text-gray-300 px-3 py-2"
             onClick={handleLinkClick}
           >
             Features
           </Link>
           <Link
-            href="#benefits"
-            className="text-lg font-medium transition-colors hover:text-primary px-3 py-2"
+            href="#process"
+            className="text-lg font-medium transition-colors hover:text-emerald-400 text-gray-300 px-3 py-2"
             onClick={handleLinkClick}
           >
-            Benefits
+            Process
           </Link>
           <Link
-            href="#how-it-works"
-            className="text-lg font-medium transition-colors hover:text-primary px-3 py-2"
+            href="#"
+            className="text-lg font-medium transition-colors hover:text-emerald-400 text-gray-300 px-3 py-2"
             onClick={handleLinkClick}
           >
-            How It Works
+            Documentation
           </Link>
           <Link
-            href="#pricing"
-            className="text-lg font-medium transition-colors hover:text-primary px-3 py-2"
+            href="#"
+            className="text-lg font-medium transition-colors hover:text-emerald-400 text-gray-300 px-3 py-2"
             onClick={handleLinkClick}
           >
-            Pricing
-          </Link>
-          <Link
-            href="#contact"
-            className="text-lg font-medium transition-colors hover:text-primary px-3 py-2"
-            onClick={handleLinkClick}
-          >
-            Contact
+            Community
           </Link>
           <Link
             href={dashboardLink}
-            className="text-lg font-medium transition-colors hover:text-primary px-3 py-2"
+            className="text-lg font-medium transition-colors hover:text-emerald-400 text-gray-300 px-3 py-2"
             onClick={handleLinkClick}
           >
             Dashboard
