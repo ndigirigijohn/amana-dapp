@@ -59,7 +59,7 @@ export default function Home() {
             </Link>
             
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#platform" className="text-gray-300 hover:text-emerald-400 transition-colors font-medium">Platform</a>
+              <a href="#" className="text-gray-300 hover:text-emerald-400 transition-colors font-medium">Platform</a>
               <a href="#features" className="text-gray-300 hover:text-emerald-400 transition-colors font-medium">Features</a>
               <a href="#process" className="text-gray-300 hover:text-emerald-400 transition-colors font-medium">Process</a>
               <Link href="/entity-registry">
@@ -83,7 +83,7 @@ export default function Home() {
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl md:hidden">
           <div className="flex flex-col items-center justify-center h-full space-y-8 text-xl">
-            <a href="#platform" onClick={() => setIsMenuOpen(false)}>Platform</a>
+            <a href="#" onClick={() => setIsMenuOpen(false)}>Platform</a>
             <a href="#features" onClick={() => setIsMenuOpen(false)}>Features</a>
             <a href="#process" onClick={() => setIsMenuOpen(false)}>Process</a>
             <Link href="/entity-registry">
@@ -122,8 +122,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-            Revolutionary blockchain platform transforming African financial cooperatives 
-            with automated governance, transparent treasury, and tokenized membership.
+            Transforming African financial cooperatives with fast, cost-saving, transparent, tokenized and borderless transactions.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-20">
@@ -173,7 +172,7 @@ export default function Home() {
           {/* Features - Single Column */}
           <div className="max-w-5xl mx-auto space-y-8">
             {features.map((feature, index) => (
-              <div key={index} className="group relative">
+              <div key={index} className="group relative cursor-pointer">
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-emerald-500/30 transition-all duration-500 text-left">
                   <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 mb-6">
