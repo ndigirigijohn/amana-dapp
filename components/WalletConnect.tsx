@@ -65,6 +65,14 @@ const WalletConnect = () => {
     };
 
     initialize();
+
+    // Listen for custom events to open modal
+    const handleOpenModal = () => {
+      setIsModalOpen(true);
+    };
+
+    window.addEventListener('openWalletModal', handleOpenModal);
+    return () => window.removeEventListener('openWalletModal', handleOpenModal);
   }, []);
 
   // Close dropdown when clicking outside
@@ -83,6 +91,29 @@ const WalletConnect = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen]);
+
+  // Close modal when clicking backdrop
+  useEffect(() => {
+    const handleBackdropClick = (event: MouseEvent) => {
+      const modalContent = document.getElementById('wallet-modal-content');
+      if (isModalOpen && !modalContent?.contains(event.target as Node)) {
+        setIsModalOpen(false);
+      }
+    };
+
+    if (isModalOpen) {
+      document.addEventListener('mousedown', handleBackdropClick);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleBackdropClick);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   // Retrieve saved wallet connection from local storage
   const getSavedWalletConnection = (): ConnectedWalletType | null => {
@@ -324,6 +355,7 @@ const WalletConnect = () => {
       <button
         onClick={() => setIsModalOpen(true)}
         disabled={isConnecting}
+        aria-label="Connect wallet"
         className="group bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 disabled:from-gray-600 disabled:to-gray-600 px-6 py-3 rounded-xl text-white font-medium transition-all duration-300 transform hover:scale-105 disabled:scale-100 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 disabled:shadow-none flex items-center space-x-2"
       >
         {isConnecting ? (
@@ -347,12 +379,11 @@ const WalletConnect = () => {
 
       {/* Connection Modal */}
       {isModalOpen && (
-        <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-        >
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
           <div 
-            className="bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            id="wallet-modal-content"
+            className="bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-3xl shadow-2xl w-full max-w-md mx-auto my-auto max-h-[85vh] overflow-hidden"
+            style={{ position: 'relative', top: 'auto', left: 'auto', transform: 'none' }}
           >
             {/* Header */}
             <div className="p-6 border-b border-gray-800 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10">
@@ -369,9 +400,11 @@ const WalletConnect = () => {
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 hover:bg-gray-800 rounded-xl transition-colors"
+                  className="p-2 hover:bg-gray-800 rounded-xl transition-colors text-gray-400 hover:text-white"
                 >
-                  <div className="w-5 h-5 text-gray-400">×</div>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -380,7 +413,11 @@ const WalletConnect = () => {
             <div className="p-6">
               {errorMessage && (
                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-start space-x-3">
-                  <div className="w-5 h-5 text-red-400 mt-0.5">⚠</div>
+                  <div className="w-5 h-5 text-red-400 mt-0.5">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
                   <div>{errorMessage}</div>
                 </div>
               )}
@@ -392,23 +429,8 @@ const WalletConnect = () => {
                   </div>
                   <h4 className="text-lg font-medium text-white mb-2">No Wallets Found</h4>
                   <p className="text-sm text-gray-400 mb-6">Please install a Cardano wallet extension to continue</p>
-                  <div className="grid grid-cols-1 gap-3">
-                    {[
-                      { name: 'Eternl', url: 'https://eternl.io' },
-                      { name: 'Nami', url: 'https://namiwallet.io' },
-                      { name: 'Lace', url: 'https://www.lace.io' },
-                    ].map((wallet) => (
-                      <a
-                        key={wallet.name}
-                        href={wallet.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-between p-3 bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-emerald-500/50 rounded-xl transition-all duration-200"
-                      >
-                        <span className="text-white font-medium">Install {wallet.name}</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </a>
-                    ))}
+                  <div className="text-sm text-gray-500">
+                    Popular wallets: Eternl, Nami, Lace, Flint
                   </div>
                 </div>
               ) : (
@@ -419,10 +441,7 @@ const WalletConnect = () => {
                     <button
                       key={wallet.name}
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        connectWallet(wallet.name);
-                      }}
+                      onClick={() => connectWallet(wallet.name)}
                       disabled={isConnecting}
                       className="w-full flex items-center space-x-4 p-4 bg-gray-800/30 hover:bg-gray-800/60 disabled:bg-gray-800/20 border border-gray-700 hover:border-emerald-500/50 disabled:border-gray-700 rounded-xl transition-all duration-200 group"
                     >

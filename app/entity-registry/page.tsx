@@ -82,18 +82,20 @@ export default function EntityRegistryPage() {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight tracking-tight">
-              <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                Entity Registry
-              </span>
-            </h1>
-            
-            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Create or restore your SACCO entity on the Cardano blockchain
-            </p>
-          </div>
+          {/* Hero Section - Only show when wallet is connected */}
+          {isWalletConnected && (
+            <div className="text-center mb-8">
+              <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight tracking-tight">
+                <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                  Entity Registry
+                </span>
+              </h1>
+              
+              <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                Create or restore your SACCO entity on the Cardano blockchain
+              </p>
+            </div>
+          )}
 
           {isWalletConnected ? (
             <div className="relative">
