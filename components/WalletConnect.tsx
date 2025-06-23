@@ -70,7 +70,12 @@ const WalletConnect = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isDropdownOpen) {
+      const dropdown = document.getElementById('wallet-dropdown');
+      const button = document.getElementById('wallet-button');
+      
+      if (isDropdownOpen && 
+          !dropdown?.contains(event.target as Node) && 
+          !button?.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
@@ -185,6 +190,7 @@ const WalletConnect = () => {
       return (
         <div className="relative">
           <button
+            id="wallet-button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="group flex items-center space-x-3 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-400/40 rounded-2xl px-4 py-3 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
           >
@@ -202,7 +208,10 @@ const WalletConnect = () => {
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+            <div 
+              id="wallet-dropdown"
+              className="absolute right-0 top-full mt-2 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden"
+            >
               {/* Header */}
               <div className="px-6 py-4 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-b border-gray-800">
                 <div className="flex items-center space-x-3">
@@ -239,7 +248,11 @@ const WalletConnect = () => {
                         {connectedWallet.address}
                       </div>
                       <button
-                        onClick={() => copyToClipboard(connectedWallet.address, 'address')}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(connectedWallet.address, 'address');
+                        }}
                         className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
                       >
                         <Copy className="w-4 h-4 text-gray-400" />
@@ -257,7 +270,11 @@ const WalletConnect = () => {
                         {connectedWallet.verificationKeyHash}
                       </div>
                       <button
-                        onClick={() => copyToClipboard(connectedWallet.verificationKeyHash, 'vkh')}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(connectedWallet.verificationKeyHash, 'vkh');
+                        }}
                         className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors"
                       >
                         <Copy className="w-4 h-4 text-gray-400" />
@@ -274,14 +291,22 @@ const WalletConnect = () => {
               <div className="px-6 py-4">
                 <div className="space-y-2">
                   <button
-                    onClick={() => window.open(`https://preview.cardanoscan.io/address/${connectedWallet.address}`, '_blank')}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`https://preview.cardanoscan.io/address/${connectedWallet.address}`, '_blank');
+                    }}
                     className="w-full flex items-center justify-center space-x-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl py-2.5 transition-all duration-200"
                   >
                     <ExternalLink className="w-4 h-4" />
                     <span>View on Explorer</span>
                   </button>
                   <button
-                    onClick={disconnectWallet}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      disconnectWallet();
+                    }}
                     className="w-full flex items-center justify-center space-x-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl py-2.5 transition-all duration-200"
                   >
                     <Power className="w-4 h-4" />
@@ -324,7 +349,6 @@ const WalletConnect = () => {
       {isModalOpen && (
         <div 
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setIsModalOpen(false)}
         >
           <div 
             className="bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden"
@@ -343,6 +367,7 @@ const WalletConnect = () => {
                   </div>
                 </div>
                 <button 
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="p-2 hover:bg-gray-800 rounded-xl transition-colors"
                 >
@@ -393,7 +418,11 @@ const WalletConnect = () => {
                   {availableWallets.map((wallet) => (
                     <button
                       key={wallet.name}
-                      onClick={() => connectWallet(wallet.name)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        connectWallet(wallet.name);
+                      }}
                       disabled={isConnecting}
                       className="w-full flex items-center space-x-4 p-4 bg-gray-800/30 hover:bg-gray-800/60 disabled:bg-gray-800/20 border border-gray-700 hover:border-emerald-500/50 disabled:border-gray-700 rounded-xl transition-all duration-200 group"
                     >
@@ -427,4 +456,4 @@ const WalletConnect = () => {
   );
 };
 
-export default WalletConnect; 
+export default WalletConnect;
