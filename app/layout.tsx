@@ -11,7 +11,11 @@ export const metadata: Metadata = {
   title: "Amana CE - Transforming SACCO Operations with Blockchain",
   description:
     "Amana Chain Entities (Amana CE) is a blockchain-based platform built on Cardano that transforms how SACCOs operate through innovative features.",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  // Simple favicon
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
@@ -21,6 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Removed additional favicon links for simplicity */}
+      </head>
       <body className={inter.className}>
         {/* <AuthProvider> */}
           {children}

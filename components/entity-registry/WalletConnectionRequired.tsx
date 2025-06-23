@@ -1,139 +1,71 @@
 'use client';
 
-import { ArrowRight, Wallet, ExternalLink, Zap } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Wallet, Shield, Zap, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function WalletConnectionRequired() {
   // Show modal to connect wallet when clicked
   const handleConnectClick = () => {
-    // Find the wallet connect button in the header and click it
-    const connectButton = document.querySelector('[aria-label="Connect wallet"]') as HTMLButtonElement;
-    if (connectButton) {
-      connectButton.click();
-    }
+    // Create and dispatch a custom event that the WalletConnect component can listen for
+    const event = new CustomEvent('openWalletModal');
+    window.dispatchEvent(event);
   };
   
-  const wallets = [
-    {
-      name: 'Eternl Wallet',
-      url: 'https://eternl.io/app/mainnet/welcome',
-      icon: '🔮',
-      description: 'Feature-rich wallet with advanced capabilities'
-    },
-    {
-      name: 'Nami Wallet',
-      url: 'https://namiwallet.io/',
-      icon: '🌊',
-      description: 'Simple and intuitive Cardano wallet'
-    },
-    {
-      name: 'Lace Wallet',
-      url: 'https://www.lace.io/',
-      icon: '✨',
-      description: 'Next-generation Cardano wallet by IOG'
-    }
-  ];
-  
   return (
-    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden">
-      <CardHeader className="text-center pb-6 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-b border-white/10">
-        <div className="mx-auto bg-gradient-to-r from-emerald-500 to-cyan-500 p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6">
-          <Wallet className="h-10 w-10 text-white" />
-        </div>
-        <CardTitle className="text-3xl md:text-4xl font-bold mb-4">
-          <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-            Wallet Connection Required
-          </span>
-        </CardTitle>
-        <CardDescription className="text-lg text-gray-300 max-w-2xl mx-auto">
-          Connect your Cardano wallet to create or restore an entity on the blockchain
-        </CardDescription>
-      </CardHeader>
+    <div className="relative">
+      {/* Glow effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 rounded-3xl blur-xl opacity-60"></div>
       
-      <CardContent className="p-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center space-x-2 bg-emerald-500/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6 border border-emerald-500/20">
-            <Zap className="w-4 h-4 text-emerald-400" />
-            <span className="text-emerald-300 text-sm font-medium">Secure • Fast • Decentralized</span>
+      <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden">
+        {/* Main Content */}
+        <div className="p-8 md:p-12 text-center">
+          {/* Icon */}
+          <div className="mx-auto bg-gradient-to-r from-emerald-500 to-cyan-500 p-6 rounded-3xl w-24 h-24 flex items-center justify-center mb-8">
+            <Wallet className="h-12 w-12 text-white" />
           </div>
           
-          <p className="text-gray-300 mb-8 leading-relaxed">
-            To use the Amana CE platform, you need to connect a Cardano wallet. This allows you to 
-            interact with the blockchain and manage your SACCO entity with complete security and transparency.
+          {/* Heading */}
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              Connect Your Wallet
+            </span>
+          </h2>
+          
+          {/* Description */}
+          <p className="text-gray-300 text-lg mb-8 max-w-md mx-auto leading-relaxed">
+            Use the "Connect Wallet" button in the top right to get started
+          </p>
+          
+          {/* Features Grid */}
+          <div className="grid grid-cols-3 gap-6 mb-10 max-w-lg mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Shield className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div className="text-sm text-gray-300">Secure</div>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Zap className="w-6 h-6 text-cyan-400" />
+              </div>
+              <div className="text-sm text-gray-300">Fast</div>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Lock className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div className="text-sm text-gray-300">Private</div>
+            </div>
+          </div>
+          
+          {/* Note: Connect button removed - users should use the header button */}
+          
+          {/* Footer Note */}
+          <p className="text-xs text-gray-500 mt-6">
+            No wallet? Popular options include Lace, Eternl, and Nami.
           </p>
         </div>
-
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold text-white mb-6 text-center">
-            Don't have a wallet? Choose one to install:
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {wallets.map((wallet, index) => (
-              <a
-                key={index}
-                href={wallet.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 hover:border-emerald-500/30 rounded-2xl p-6 transition-all duration-300 hover:transform hover:scale-105">
-                  <div className="text-center">
-                    <div className="text-3xl mb-3">{wallet.icon}</div>
-                    <h4 className="font-semibold text-white mb-2 group-hover:text-emerald-400 transition-colors">
-                      {wallet.name}
-                    </h4>
-                    <p className="text-sm text-gray-400 mb-4 leading-relaxed">
-                      {wallet.description}
-                    </p>
-                    <div className="flex items-center justify-center text-emerald-400 group-hover:text-emerald-300 transition-colors">
-                      <span className="text-sm font-medium mr-2">Install</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center">
-          <h4 className="font-semibold text-emerald-400 mb-2">Why Connect a Wallet?</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-2">
-                🔒
-              </div>
-              <span>Secure transactions</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-2">
-                🌐
-              </div>
-              <span>Blockchain interaction</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center mb-2">
-                👤
-              </div>
-              <span>Identity verification</span>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="flex justify-center p-8 border-t border-white/10">
-        <Button 
-          size="lg" 
-          onClick={handleConnectClick} 
-          className="group bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 px-8 py-4 text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg shadow-emerald-500/25"
-        >
-          Connect Wallet
-          <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-        </Button>
-      </CardFooter>
+      </div>
     </div>
   );
 }
