@@ -24,7 +24,9 @@ import {
   AlertCircle, 
   Loader2, 
   ExternalLink,
-  Clock
+  Clock,
+  Sparkles,
+  Shield
 } from 'lucide-react';
 
 // Define entity data type (for localStorage compatibility)
@@ -44,7 +46,7 @@ interface EntityData {
   txHash?: string;
   contractAddress?: string;
   blockchainEntityId?: string;
-  metadata?: any; // Add metadata field
+  metadata?: any;
 }
 
 // Transaction status enum
@@ -101,156 +103,148 @@ export default function EntityRegistrationForm() {
     setEntityData(prev => ({ ...prev, [name]: checked }));
   };
 
-// Replace the handleSubmit function with this improved version:
-
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  if (!connectedWallet) {
-    toast({
-      title: "Wallet not connected",
-      description: "Please connect your wallet to create an entity",
-      variant: "destructive"
-    });
-    return;
-  }
-
-  // Clear any previous errors
-  clearError();
-  
-  try {
-    // Validate form data
-    if (!entityData.name || !entityData.description) {
-      throw new Error("Entity name and description are required");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!connectedWallet) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet to create an entity",
+        variant: "destructive"
+      });
+      return;
     }
 
-    setTxStatus(TransactionStatus.SUBMITTING);
+    // Clear any previous errors
+    clearError();
+    
+    try {
+      // Validate form data
+      if (!entityData.name || !entityData.description) {
+        throw new Error("Entity name and description are required");
+      }
 
-    // Initialize registry if not already done
-    if (!isInitialized) {
-      console.log('EntityRegistrationForm: Registry not initialized, initializing now...');
+      setTxStatus(TransactionStatus.SUBMITTING);
+
+      // Initialize registry if not already done
+      if (!isInitialized) {
+        console.log('EntityRegistrationForm: Registry not initialized, initializing now...');
+        toast({
+          title: "Initializing blockchain connection",
+          description: "Connecting to the Cardano network..."
+        });
+        
+        const initialized = await initializeRegistry();
+        console.log('EntityRegistrationForm: Initialization result:', initialized);
+        
+        if (!initialized) {
+          throw new Error("Failed to initialize blockchain connection");
+        }
+        
+        // Small delay to ensure state is updated
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      // Create entity on blockchain
       toast({
-        title: "Initializing blockchain connection",
-        description: "Connecting to the Cardano network..."
+        title: "Creating entity on blockchain",
+        description: "Please confirm the transaction in your wallet"
       });
+
+      console.log('EntityRegistrationForm: Calling createEntity...');
+      const result = await createEntity(entityData.name, entityData.description);
+      console.log('EntityRegistrationForm: createEntity result:', result);
       
-      const initialized = await initializeRegistry();
-      console.log('EntityRegistrationForm: Initialization result:', initialized);
+      if (!result) {
+        console.error('EntityRegistrationForm: createEntity returned null');
+        if (error) {
+          throw new Error(error);
+        }
+        throw new Error("Failed to create entity on blockchain");
+      }
+
+      setCurrentTxHash(result.txHash);
+      setTxStatus(TransactionStatus.SUBMITTED);
+
+      toast({
+        title: "Transaction submitted!",
+        description: `Transaction hash: ${result.txHash.slice(0, 16)}...`,
+      });
+
+      // Wait for confirmation
+      setTxStatus(TransactionStatus.CONFIRMING);
       
-      if (!initialized) {
-        throw new Error("Failed to initialize blockchain connection");
+      toast({
+        title: "Waiting for confirmation",
+        description: "Your transaction is being processed on the blockchain..."
+      });
+
+      const confirmed = await waitForConfirmation(result.txHash);
+      
+      if (!confirmed) {
+        toast({
+          title: "Confirmation timeout",
+          description: "Transaction may still be processing. Check your wallet or block explorer.",
+          variant: "destructive"
+        });
+        console.log('Proceeding despite confirmation timeout...');
+      }
+
+      setTxStatus(TransactionStatus.CONFIRMED);
+
+      // Create entity object for localStorage (backward compatibility)
+      const newEntity: EntityData = {
+        ...entityData,
+        id: result.entityId,
+        founder: connectedWallet.verificationKeyHash,
+        creationDate: Date.now(),
+        txHash: result.txHash,
+        contractAddress: result.contractAddress,
+        blockchainEntityId: result.entityId,
+        metadata: result.metadata
+      };
+
+      // Store in localStorage for dashboard compatibility
+      const storedEntities = localStorage.getItem('amana_entities');
+      const entities = storedEntities ? JSON.parse(storedEntities) : [];
+      entities.push(newEntity);
+      localStorage.setItem('amana_entities', JSON.stringify(entities));
+      localStorage.setItem('amana_current_entity', JSON.stringify(newEntity));
+
+      toast({
+        title: "Entity created successfully!",
+        description: "Your SACCO entity has been registered on the blockchain",
+      });
+
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Entity creation error:', error);
+      setTxStatus(TransactionStatus.FAILED);
+      
+      let errorMessage = "An unexpected error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
       }
       
-      // Small delay to ensure state is updated
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    // Create entity on blockchain
-    toast({
-      title: "Creating entity on blockchain",
-      description: "Please confirm the transaction in your wallet"
-    });
-
-    console.log('EntityRegistrationForm: Calling createEntity...');
-    const result = await createEntity(entityData.name, entityData.description);
-    console.log('EntityRegistrationForm: createEntity result:', result);
-    
-    if (!result) {
-      console.error('EntityRegistrationForm: createEntity returned null');
-      // Check if there's a specific error message
-      if (error) {
-        throw new Error(error);
+      if (errorMessage.includes("confirmation timeout") || errorMessage.includes("Timeout")) {
+        toast({
+          title: "Transaction may still be processing",
+          description: "Your transaction was submitted but confirmation timed out. Check your wallet or a block explorer to verify.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error creating entity",
+          description: errorMessage,
+          variant: "destructive"
+        });
       }
-      throw new Error("Failed to create entity on blockchain");
     }
-
-    setCurrentTxHash(result.txHash);
-    setTxStatus(TransactionStatus.SUBMITTED);
-
-    toast({
-      title: "Transaction submitted!",
-      description: `Transaction hash: ${result.txHash.slice(0, 16)}...`,
-    });
-
-    // Wait for confirmation
-    setTxStatus(TransactionStatus.CONFIRMING);
-    
-    toast({
-      title: "Waiting for confirmation",
-      description: "Your transaction is being processed on the blockchain..."
-    });
-
-    const confirmed = await waitForConfirmation(result.txHash);
-    
-    if (!confirmed) {
-      // Don't throw an error here - the transaction might still be valid
-      // Just show a warning and proceed
-      toast({
-        title: "Confirmation timeout",
-        description: "Transaction may still be processing. Check your wallet or block explorer.",
-        variant: "destructive"
-      });
-      
-      // Still proceed with saving the entity locally
-      console.log('Proceeding despite confirmation timeout...');
-    }
-
-    setTxStatus(TransactionStatus.CONFIRMED);
-
-    // Create entity object for localStorage (backward compatibility)
-     const newEntity: EntityData = {
-      ...entityData,
-      id: result.entityId,
-      founder: connectedWallet.verificationKeyHash,
-      creationDate: Date.now(),
-      txHash: result.txHash,
-      contractAddress: result.contractAddress,
-      blockchainEntityId: result.entityId,
-      metadata: result.metadata // Save the metadata
-    };
-
-    // Store in localStorage for dashboard compatibility
-    const storedEntities = localStorage.getItem('amana_entities');
-    const entities = storedEntities ? JSON.parse(storedEntities) : [];
-    entities.push(newEntity);
-    localStorage.setItem('amana_entities', JSON.stringify(entities));
-    localStorage.setItem('amana_current_entity', JSON.stringify(newEntity));
-
-    toast({
-      title: "Entity created successfully!",
-      description: "Your SACCO entity has been registered on the blockchain",
-    });
-
-    // Redirect to dashboard after a short delay
-    setTimeout(() => {
-      router.push('/dashboard');
-    }, 2000);
-    
-  } catch (error) {
-    console.error('Entity creation error:', error);
-    setTxStatus(TransactionStatus.FAILED);
-    
-    let errorMessage = "An unexpected error occurred";
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    
-    // Show more user-friendly error messages
-    if (errorMessage.includes("confirmation timeout") || errorMessage.includes("Timeout")) {
-      toast({
-        title: "Transaction may still be processing",
-        description: "Your transaction was submitted but confirmation timed out. Check your wallet or a block explorer to verify.",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Error creating entity",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    }
-  }
-};
+  };
 
   // Get progress percentage based on transaction status
   const getProgress = () => {
@@ -274,17 +268,24 @@ const handleSubmit = async (e: React.FormEvent) => {
                         txStatus !== TransactionStatus.FAILED;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create New Entity</CardTitle>
-        <CardDescription>Register your SACCO on the Cardano blockchain</CardDescription>
+    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-b border-white/10 p-8">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-2xl font-bold text-white">Create New Entity</CardTitle>
+            <CardDescription className="text-gray-300">Register your SACCO on the Cardano blockchain</CardDescription>
+          </div>
+        </div>
       </CardHeader>
       
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 p-8">
           {/* Show blockchain errors */}
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
+            <div className="flex items-center gap-2 p-3 bg-red-500/10 text-red-400 rounded-2xl text-sm border border-red-500/20">
               <AlertCircle className="h-4 w-4" />
               <span>{error}</span>
               <Button 
@@ -301,7 +302,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           {/* Transaction Progress */}
           {isTxInProgress && (
-            <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+            <div className="space-y-3 p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Blockchain Transaction Progress</span>
                 <span className="text-xs text-muted-foreground">{getProgress()}%</span>
@@ -349,7 +350,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
           {/* Success message */}
           {txStatus === TransactionStatus.CONFIRMED && (
-            <div className="flex items-center gap-2 p-3 bg-green-500/10 text-green-600 rounded-lg text-sm">
+            <div className="flex items-center gap-2 p-3 bg-green-500/10 text-green-400 rounded-2xl text-sm border border-green-500/20">
               <CheckCircle className="h-4 w-4" />
               <span>Entity successfully created on blockchain! Redirecting to dashboard...</span>
             </div>
@@ -358,7 +359,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           {/* Form fields */}
           <div className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Entity Name</Label>
+              <Label htmlFor="name" className="text-white">Entity Name</Label>
               <Input
                 id="name"
                 name="name"
@@ -367,10 +368,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                 placeholder="e.g., Community Savings Cooperative"
                 disabled={isLoading}
                 required
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-400 focus:border-emerald-500/50 rounded-xl"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-white">Description</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -380,33 +382,34 @@ const handleSubmit = async (e: React.FormEvent) => {
                 rows={4}
                 disabled={isLoading}
                 required
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-400 focus:border-emerald-500/50 rounded-xl"
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <h3 className="text-lg font-medium">Governance Settings</h3>
-            <p className="text-sm text-muted-foreground">Configure how your SACCO will operate</p>
+            <h3 className="text-lg font-medium text-white">Governance Settings</h3>
+            <p className="text-sm text-gray-400">Configure how your SACCO will operate</p>
           </div>
           
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="governanceModel">Governance Model</Label>
+              <Label htmlFor="governanceModel" className="text-white">Governance Model</Label>
               <select
                 id="governanceModel"
                 name="governanceModel"
                 value={entityData.governanceModel}
                 onChange={handleChange}
                 disabled={isLoading}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-10 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="democratic">Democratic (One Member, One Vote)</option>
-                <option value="representative">Representative (Elected Board)</option>
-                <option value="weighted">Weighted (Based on Contribution)</option>
+                <option value="democratic" className="bg-gray-900">Democratic (One Member, One Vote)</option>
+                <option value="representative" className="bg-gray-900">Representative (Elected Board)</option>
+                <option value="weighted" className="bg-gray-900">Weighted (Based on Contribution)</option>
               </select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="membershipFee">Membership Fee (KES)</Label>
+              <Label htmlFor="membershipFee" className="text-white">Membership Fee (KES)</Label>
               <Input
                 id="membershipFee"
                 name="membershipFee"
@@ -417,10 +420,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                 placeholder="1000"
                 disabled={isLoading}
                 required
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-400 focus:border-emerald-500/50 rounded-xl"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="votingThreshold">Voting Threshold (%)</Label>
+              <Label htmlFor="votingThreshold" className="text-white">Voting Threshold (%)</Label>
               <Input
                 id="votingThreshold"
                 name="votingThreshold"
@@ -432,10 +436,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                 placeholder="51"
                 disabled={isLoading}
                 required
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-400 focus:border-emerald-500/50 rounded-xl"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="treasurySignatures">Required Treasury Signatures</Label>
+              <Label htmlFor="treasurySignatures" className="text-white">Required Treasury Signatures</Label>
               <Input
                 id="treasurySignatures"
                 name="treasurySignatures"
@@ -446,6 +451,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 placeholder="3"
                 disabled={!entityData.treasuryMultisig || isLoading}
                 required
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-400 focus:border-emerald-500/50 rounded-xl"
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -454,8 +460,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 checked={entityData.enableKYC}
                 onCheckedChange={handleSwitchChange('enableKYC')}
                 disabled={isLoading}
+                className="data-[state=checked]:bg-emerald-500"
               />
-              <Label htmlFor="enableKYC">Enable KYC Requirements</Label>
+              <Label htmlFor="enableKYC" className="text-white">Enable KYC Requirements</Label>
             </div>
             <div className="flex items-center space-x-2">
               <Switch
@@ -463,33 +470,41 @@ const handleSubmit = async (e: React.FormEvent) => {
                 checked={entityData.treasuryMultisig}
                 onCheckedChange={handleSwitchChange('treasuryMultisig')}
                 disabled={isLoading}
+                className="data-[state=checked]:bg-emerald-500"
               />
-              <Label htmlFor="treasuryMultisig">Multi-signature Treasury</Label>
+              <Label htmlFor="treasuryMultisig" className="text-white">Multi-signature Treasury</Label>
             </div>
           </div>
           
-          <div className="bg-muted/50 rounded-lg p-4 text-sm">
-            <p className="font-medium mb-2">Blockchain Notice:</p>
-            <p>
-              This will create a smart contract on the Cardano blockchain to manage your SACCO. 
-              The entity will be created with you as the founder, using your currently connected wallet. 
-              Transaction fees will apply, and the process may take a few minutes to complete.
-            </p>
+          <div className="bg-emerald-500/10 rounded-2xl p-4 text-sm border border-emerald-500/20">
+            <div className="flex items-start space-x-3">
+              <Shield className="w-5 h-5 text-emerald-400 mt-0.5" />
+              <div>
+                <p className="font-medium mb-2 text-white">Blockchain Notice:</p>
+                <p className="text-gray-300">
+                  This will create a smart contract on the Cardano blockchain to manage your SACCO. 
+                  The entity will be created with you as the founder, using your currently connected wallet. 
+                  Transaction fees will apply, and the process may take a few minutes to complete.
+                </p>
+              </div>
+            </div>
           </div>
         </CardContent>
         
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between p-8 border-t border-white/10">
           <Button 
             variant="outline" 
             type="button" 
             onClick={() => router.push('/')}
             disabled={isLoading}
+            className="border-white/20 text-white hover:bg-white/10 rounded-xl"
           >
             Cancel
           </Button>
           <Button 
             type="submit" 
             disabled={isLoading || txStatus === TransactionStatus.CONFIRMED}
+            className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-xl"
           >
             {isLoading ? (
               <>
@@ -510,6 +525,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           </Button>
         </CardFooter>
       </form>
-    </Card>
+    </div>
   );
 }
