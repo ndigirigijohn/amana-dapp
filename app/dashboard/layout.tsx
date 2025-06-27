@@ -45,178 +45,254 @@ const mainNavigation = [
     icon: FileCheck,
     subItems: [
       { name: "Overview", href: "/dashboard/governance" },
-      { name: "Voting", href: "/dashboard/governance/voting" },
-      { name: "History", href: "/dashboard/governance/history" }
-    ] 
+      { name: "Voting", href: "/dashboard/governance/voting" }
+    ]
   }
-];
+]
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(false)
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const pathname = usePathname()
   const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
-  const [entityName, setEntityName] = useState<string>("")
-  
-  // Find active main navigation item based on pathname
-  const activeMainNav = mainNavigation.find(item => 
-    pathname === item.href || pathname.startsWith(`${item.href}/`)
-  );
+  const [entityData, setEntityData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Only render on client-side to avoid hydration mismatch
+  // Find the active main navigation item
+  const activeMainNav = mainNavigation.find(item => {
+    if (item.href === "/dashboard" && pathname === "/dashboard") return true
+    if (item.href !== "/dashboard" && pathname.startsWith(item.href)) return true
+    return false
+  })
+
+  // Check entity access and load data
   useEffect(() => {
-    setIsClient(true)
-    
-    // Check if wallet is connected and entity exists
-    const walletConnection = getSavedWalletConnection();
-    const entityData = localStorage.getItem('amana_current_entity');
-    
-    if (!walletConnection || !entityData) {
-      router.push('/entity-registry');
-      return;
+    const checkEntityAccess = async () => {
+      setIsLoading(true)
+      
+      // Check wallet connection
+      const walletConnection = getSavedWalletConnection()
+      if (!walletConnection) {
+        router.push('/entity-registry')
+        return
+      }
+      
+      // Check entity data
+      const currentEntityData = localStorage.getItem('amana_current_entity')
+      if (!currentEntityData) {
+        router.push('/entity-registry')
+        return
+      }
+      
+      try {
+        const parsedEntityData = JSON.parse(currentEntityData)
+        setEntityData(parsedEntityData)
+      } catch (error) {
+        console.error("Error parsing entity data:", error)
+        router.push('/entity-registry')
+        return
+      }
+      
+      setIsLoading(false)
     }
     
-    try {
-      const entity = JSON.parse(entityData);
-      setEntityName(entity.name || "My SACCO Entity");
-    } catch (error) {
-      console.error("Error parsing entity data:", error);
-    }
-  }, [router]);
+    checkEntityAccess()
+  }, [router])
 
-  if (!isClient) {
-    return null; // Return null on server to avoid hydration issues
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+      </div>
+    )
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Mobile navigation */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 lg:hidden">
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="lg:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </SheetTrigger>
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/Amana_logo.png" width={32} height={32} alt="Amana CE Logo" />
-            <span className="font-bold">Amana CE</span>
-          </Link>
-          <div className="flex-1 flex justify-end">
-            <WalletConnect />
-          </div>
-        </header>
-        <SheetContent side="left" className="w-72 p-0">
-          <div className="flex flex-col gap-2 p-6 border-b">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/Amana_logo.png" width={32} height={32} alt="Amana CE Logo" />
-              <span className="font-bold">Amana CE</span>
-            </Link>
-            <p className="text-sm text-muted-foreground">
-              {entityName}
-            </p>
-          </div>
-          <nav className="grid gap-2 px-2 py-4">
-            {mainNavigation.map((item) => {
-              const isActive = item === activeMainNav;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                    isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </nav>
-        </SheetContent>
-      </Sheet>
-
-      {/* Desktop navigation - Left Sidebar */}
-      <div className="hidden border-r bg-muted/40 lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex flex-col gap-2 p-6 border-b">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/Amana_logo.png" width={32} height={32} alt="Amana CE Logo" />
-            <span className="font-bold">Amana CE</span>
-          </Link>
-          <p className="text-sm text-muted-foreground">
-            {entityName}
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
+      {/* Geometric Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/5 rounded-full"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div className="w-[600px] h-[600px] border border-white/5 rounded-full"></div>
+          <div className="absolute inset-8 border border-white/10 rounded-full"></div>
+          <div className="absolute inset-16 border border-emerald-500/20 rounded-full"></div>
         </div>
-        <nav className="grid gap-2 px-2 py-4">
-          {mainNavigation.map((item) => {
-            const isActive = item === activeMainNav;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.name}
-              </Link>
-            )
-          })}
-        </nav>
       </div>
 
-      {/* Main content */}
-      <div className="flex flex-1 flex-col lg:pl-72">
-        {/* Top bar with sub-navigation */}
-        <header className="sticky top-0 z-30 h-16 border-b bg-background">
-          <div className="flex h-full items-center px-4 md:px-6">
-            {/* Main section title */}
-            <div className="flex flex-col">
-              <h1 className="text-lg font-semibold">{activeMainNav?.name || "Dashboard"}</h1>
-              {pathname !== "/dashboard" && (
-                <p className="text-sm text-muted-foreground">
-                  {activeMainNav?.subItems.find(sub => sub.href === pathname)?.name || "Overview"}
-                </p>
-              )}
+      <div className="relative z-10 flex h-screen">
+        {/* Sidebar */}
+        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white/5 backdrop-blur-xl border-r border-white/10 px-6 pb-4">
+            {/* Logo */}
+            <div className="flex h-16 shrink-0 items-center">
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-tr from-emerald-400 to-cyan-400 rounded-xl rotate-45 transform"></div>
+                <span className="text-xl font-bold tracking-tight text-white">Amana CE</span>
+              </Link>
             </div>
-            
-            {/* Sub-navigation for selected main item */}
-            {/* Fixed the error by adding a conditional check for activeMainNav and its subItems */}
-            {activeMainNav && activeMainNav.subItems && activeMainNav.subItems.length > 0 && (
-              <nav className="ml-8 hidden md:flex items-center space-x-4">
-                {activeMainNav.subItems.map((subItem) => {
-                  const isActive = pathname === subItem.href;
+
+            {/* Entity Info */}
+            {entityData && (
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                    <Building className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
+                      {entityData.name}
+                    </p>
+                    <p className="text-xs text-gray-400 capitalize">
+                      {entityData.governanceModel} • {entityData.votingThreshold}% threshold
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation */}
+            <nav className="flex flex-1 flex-col">
+              <ul role="list" className="flex flex-1 flex-col gap-y-2">
+                {mainNavigation.map((item) => {
+                  const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
                   return (
-                    <Link
-                      key={subItem.name}
-                      href={subItem.href}
-                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                        isActive 
-                          ? "bg-muted font-medium" 
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                      }`}
-                    >
-                      {subItem.name}
-                    </Link>
+                    <li key={item.name}>
+                      <Link
+                        href={item.href}
+                        className={`group flex gap-x-3 rounded-xl p-3 text-sm font-medium transition-all duration-200 ${
+                          isActive 
+                            ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25" 
+                            : "text-gray-300 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        <item.icon className="h-5 w-5 shrink-0" />
+                        {item.name}
+                      </Link>
+                    </li>
                   )
                 })}
-              </nav>
-            )}
-            
-            {/* Right side with wallet connect */}
-            <div className="ml-auto">
-              <WalletConnect />
-            </div>
+              </ul>
+            </nav>
           </div>
-        </header>
-        
-        {/* Page content */}
-        <main className="flex-1 p-4 md:p-6">
-          {children}
-        </main>
+        </div>
+
+        {/* Mobile sidebar */}
+        <Sheet>
+          <div className="lg:hidden">
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 text-white hover:bg-white/10">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+          </div>
+          <SheetContent side="left" className="bg-gray-900/95 backdrop-blur-xl border-gray-800 text-white">
+            <div className="flex flex-col h-full">
+              {/* Logo */}
+              <div className="flex h-16 shrink-0 items-center">
+                <Link href="/" className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-tr from-emerald-400 to-cyan-400 rounded-xl rotate-45 transform"></div>
+                  <span className="text-xl font-bold tracking-tight">Amana CE</span>
+                </Link>
+              </div>
+
+              {/* Entity Info */}
+              {entityData && (
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                      <Building className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">
+                        {entityData.name}
+                      </p>
+                      <p className="text-xs text-gray-400 capitalize">
+                        {entityData.governanceModel} • {entityData.votingThreshold}% threshold
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation */}
+              <nav className="flex flex-1 flex-col">
+                <ul role="list" className="flex flex-1 flex-col gap-y-2">
+                  {mainNavigation.map((item) => {
+                    const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          href={item.href}
+                          className={`group flex gap-x-3 rounded-xl p-3 text-sm font-medium transition-all duration-200 ${
+                            isActive 
+                              ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25" 
+                              : "text-gray-300 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          <item.icon className="h-5 w-5 shrink-0" />
+                          {item.name}
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Main content */}
+        <div className="flex flex-1 flex-col lg:pl-72">
+          {/* Top bar with sub-navigation */}
+          <header className="sticky top-0 z-30 h-16 bg-white/5 backdrop-blur-xl border-b border-white/10">
+            <div className="flex h-full items-center px-4 md:px-6">
+              {/* Main section title */}
+              <div className="flex flex-col">
+                <h1 className="text-lg font-semibold text-white">{activeMainNav?.name || "Dashboard"}</h1>
+                {pathname !== "/dashboard" && (
+                  <p className="text-sm text-gray-400">
+                    {activeMainNav?.subItems.find(sub => sub.href === pathname)?.name || "Overview"}
+                  </p>
+                )}
+              </div>
+              
+              {/* Sub-navigation for selected main item */}
+              {activeMainNav && activeMainNav.subItems && activeMainNav.subItems.length > 0 && (
+                <nav className="ml-8 hidden md:flex items-center space-x-4">
+                  {activeMainNav.subItems.map((subItem) => {
+                    const isActive = pathname === subItem.href;
+                    return (
+                      <Link
+                        key={subItem.name}
+                        href={subItem.href}
+                        className={`px-3 py-1.5 text-sm rounded-xl transition-all duration-200 ${
+                          isActive 
+                            ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-400 border border-emerald-500/30" 
+                            : "text-gray-400 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        {subItem.name}
+                      </Link>
+                    )
+                  })}
+                </nav>
+              )}
+              
+              {/* Right side with wallet connect */}
+              <div className="ml-auto">
+                <WalletConnect />
+              </div>
+            </div>
+          </header>
+          
+          {/* Page content */}
+          <main className="flex-1 p-4 md:p-6">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   )
