@@ -1,4 +1,4 @@
-// offchain/deployment/deploy-entity-registry.ts
+// contract-deployment/deploy-entity-registry.ts
 import { env } from './config';
 import { loadValidators } from './utils/validators';
 import { initLucid, getVerificationKeyHash, createValidator, waitForTx } from './utils/lucid-helpers';
