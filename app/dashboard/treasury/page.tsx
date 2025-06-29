@@ -439,7 +439,7 @@ export default function TreasuryPage() {
               <select
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
-                className="bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2"
+                className="bg-white/5 border border-white/10 text-slate-600 rounded-lg px-3 py-2"
               >
                 <option value="all">All Types</option>
                 <option value="income">Income</option>

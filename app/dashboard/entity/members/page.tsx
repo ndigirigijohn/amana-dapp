@@ -2,16 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users,
   UserPlus,
@@ -19,14 +11,10 @@ import {
   CheckCircle,
   XCircle,
   Download,
-  Upload,
   MoreHorizontal,
-  AlertCircle,
-  Filter,
   RefreshCw,
   Mail,
   User,
-  Wallet,
   Shield
 } from 'lucide-react';
 import { getSavedWalletConnection } from '@/lib/common';
@@ -391,7 +379,7 @@ export default function MembersPage() {
               <select
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
-                className="bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2"
+                className="bg-white/5 border border-white/10 text-slate-600 rounded-lg px-3 py-2"
               >
                 <option value="all">All Roles</option>
                 <option value="chairperson">Chairperson</option>
@@ -404,7 +392,7 @@ export default function MembersPage() {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2"
+                className="bg-white/5 border border-white/10 text-slate-600 rounded-lg px-3 py-2"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
