@@ -24,11 +24,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="min-h-full bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <head>
         {/* Removed additional favicon links for simplicity */}
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900`}>
         {/* <AuthProvider> */}
           {children}
           <Toaster />
