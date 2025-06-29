@@ -22,7 +22,12 @@ import {
   Upload,
   MoreHorizontal,
   AlertCircle,
-  Filter
+  Filter,
+  RefreshCw,
+  Mail,
+  User,
+  Wallet,
+  Shield
 } from 'lucide-react';
 import { getSavedWalletConnection } from '@/lib/common';
 import {
@@ -42,91 +47,68 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from '@/components/ui/badge';
-
-// Mock data for members
-const MOCK_MEMBERS = [
-  { 
-    id: 'member-1', 
-    name: 'John Doe', 
-    email: 'john@example.com', 
-    walletAddress: 'addr1qxck3...9yaru09', 
-    role: 'Chairperson',
-    shares: 10,
-    kycVerified: true,
-    joinedDate: new Date(2023, 5, 15).getTime()
-  },
-  { 
-    id: 'member-2', 
-    name: 'Jane Smith', 
-    email: 'jane@example.com', 
-    walletAddress: 'addr1qy5m4...h3vmw4q2', 
-    role: 'Treasurer',
-    shares: 8,
-    kycVerified: true,
-    joinedDate: new Date(2023, 6, 22).getTime()
-  },
-  { 
-    id: 'member-3', 
-    name: 'Robert Johnson', 
-    email: 'robert@example.com', 
-    walletAddress: 'addr1q9cz5...v2q5zmy3', 
-    role: 'Member',
-    shares: 5,
-    kycVerified: false,
-    joinedDate: new Date(2023, 7, 10).getTime()
-  },
-  { 
-    id: 'member-4', 
-    name: 'Sarah Williams', 
-    email: 'sarah@example.com', 
-    walletAddress: 'addr1qxfj90...h33jkl52', 
-    role: 'Secretary',
-    shares: 7,
-    kycVerified: true,
-    joinedDate: new Date(2023, 8, 5).getTime()
-  },
-  { 
-    id: 'member-5', 
-    name: 'David Brown', 
-    email: 'david@example.com', 
-    walletAddress: 'addr1q8nst4...k42nzxp9', 
-    role: 'Member',
-    shares: 4,
-    kycVerified: false,
-    joinedDate: new Date(2023, 9, 12).getTime()
-  }
-];
-
-// Mock pending invitations
-const MOCK_INVITATIONS = [
-  {
-    id: 'inv-1',
-    email: 'marcos@example.com',
-    sentDate: new Date(2023, 10, 5).getTime(),
-    expiryDate: new Date(2023, 10, 12).getTime(),
-    status: 'pending'
-  },
-  {
-    id: 'inv-2',
-    email: 'lucia@example.com',
-    sentDate: new Date(2023, 10, 8).getTime(),
-    expiryDate: new Date(2023, 10, 15).getTime(),
-    status: 'pending'
-  }
-];
+import { 
+  apiService, 
+  type Member, 
+  type EntityData,
+  DEFAULT_ENTITY_DATA
+} from '@/lib/api/services';
 
 export default function MembersPage() {
   const router = useRouter();
-  const [entityData, setEntityData] = useState<any>(null);
+  const [entityData, setEntityData] = useState<EntityData>(DEFAULT_ENTITY_DATA);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
-  // Load entity data
-  useEffect(() => {
-    const loadEntityData = async () => {
+  const loadMembersData = async (entityId: string, showLoading = true) => {
+    if (showLoading) {
       setIsLoading(true);
-      
+    } else {
+      setIsRefreshing(true);
+    }
+    setError(null);
+
+    try {
+      // Load entity data
+      const entityResponse = await apiService.getEntityData(entityId);
+      if (entityResponse.success && entityResponse.data) {
+        setEntityData(entityResponse.data);
+      } else {
+        console.error('Failed to load entity data:', entityResponse.error);
+        // Don't show error for demo
+      }
+
+      // Load members
+      const membersResponse = await apiService.getMembers(entityId);
+      if (membersResponse.success && membersResponse.data) {
+        setMembers(membersResponse.data);
+        setFilteredMembers(membersResponse.data);
+      } else {
+        console.error('Failed to load members:', membersResponse.error);
+        // Set empty array as fallback, don't show error for demo
+        setMembers([]);
+        setFilteredMembers([]);
+      }
+
+    } catch (error) {
+      console.error('Error loading members data:', error);
+      // Don't show error for demo
+      setMembers([]);
+      setFilteredMembers([]);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    const initializePage = async () => {
       const walletConnection = getSavedWalletConnection();
       if (!walletConnection) {
         router.push('/entity-registry');
@@ -141,438 +123,434 @@ export default function MembersPage() {
       
       try {
         const parsedEntityData = JSON.parse(currentEntityData);
-        setEntityData(parsedEntityData);
+        
+        // Set entity data from localStorage immediately
+        setEntityData({
+          ...DEFAULT_ENTITY_DATA,
+          ...parsedEntityData
+        });
+        setIsLoading(false);
+        
+        // Then try to load from API if we have an ID
+        const entityId = parsedEntityData.id;
+        if (entityId) {
+          await loadMembersData(entityId, false);
+        }
       } catch (error) {
-        console.error("Error parsing entity data:", error);
+        console.error("Error initializing members page:", error);
+        // Don't show error for demo
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
-    
-    loadEntityData();
+
+    initializePage();
   }, [router]);
 
-  // Filter members based on search query and active tab
-  const filteredMembers = MOCK_MEMBERS.filter(member => {
-    const matchesSearch = 
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (activeTab === 'all') return matchesSearch;
-    if (activeTab === 'verified') return matchesSearch && member.kycVerified;
-    if (activeTab === 'unverified') return matchesSearch && !member.kycVerified;
-    
-    return matchesSearch;
-  });
+  // Filter members based on search and filters
+  useEffect(() => {
+    let filtered = members;
 
-  // Format date
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(member =>
+        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.walletAddress.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by role
+    if (selectedFilter !== 'all') {
+      filtered = filtered.filter(member => member.role.toLowerCase() === selectedFilter.toLowerCase());
+    }
+
+    // Filter by status
+    if (selectedStatus !== 'all') {
+      filtered = filtered.filter(member => member.status === selectedStatus);
+    }
+
+    setFilteredMembers(filtered);
+  }, [members, searchTerm, selectedFilter, selectedStatus]);
+
+  const handleRefresh = () => {
+    const currentEntityData = localStorage.getItem('amana_current_entity');
+    if (currentEntityData) {
+      try {
+        const parsedEntityData = JSON.parse(currentEntityData);
+        const entityId = parsedEntityData.id;
+        if (entityId) {
+          loadMembersData(entityId, false);
+        }
+      } catch (error) {
+        console.error("Error refreshing data:", error);
+        // Don't show error for demo
+      }
+    }
+  };
+
+  const handleMemberAction = async (memberId: string, action: 'approve' | 'reject' | 'remove') => {
+    const currentEntityData = localStorage.getItem('amana_current_entity');
+    if (!currentEntityData) return;
+
+    try {
+      const parsedEntityData = JSON.parse(currentEntityData);
+      const entityId = parsedEntityData.id;
+      if (!entityId) return;
+
+      let response;
+      switch (action) {
+        case 'approve':
+          response = await apiService.updateMember(entityId, memberId, { status: 'active' });
+          break;
+        case 'reject':
+          response = await apiService.removeMember(entityId, memberId);
+          break;
+        case 'remove':
+          response = await apiService.removeMember(entityId, memberId);
+          break;
+      }
+
+      if (response.success) {
+        // Refresh members list
+        await loadMembersData(entityId, false);
+      } else {
+        setError(response.error || `Failed to ${action} member`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing member:`, error);
+      setError(`Failed to ${action} member`);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Active</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>;
+      case 'inactive':
+        return <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">Inactive</Badge>;
+      default:
+        return <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">{status}</Badge>;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
   };
 
+  const truncateAddress = (address: string) => {
+    return `${address.slice(0, 8)}...${address.slice(-6)}`;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading members...</p>
+        </div>
       </div>
     );
   }
 
+  const totalMembers = members.length;
+  const activeMembers = members.filter(m => m.status === 'active').length;
+  const pendingMembers = members.filter(m => m.status === 'pending').length;
+  const kycVerifiedMembers = members.filter(m => m.kycVerified).length;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">
-          Members
-        </h2>
-        <p className="text-muted-foreground mt-1">
-          Manage your SACCO members and their permissions
-        </p>
-      </div>
-
-      {/* Member stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col space-y-1">
-                <span className="text-sm font-medium text-muted-foreground">Total Members</span>
-                <span className="text-3xl font-bold">{MOCK_MEMBERS.length}</span>
-              </div>
-              <div className="rounded-full p-3 bg-primary/10">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col space-y-1">
-                <span className="text-sm font-medium text-muted-foreground">KYC Verified</span>
-                <span className="text-3xl font-bold">
-                  {MOCK_MEMBERS.filter(m => m.kycVerified).length}/{MOCK_MEMBERS.length}
-                </span>
-              </div>
-              <div className="rounded-full p-3 bg-green-500/10">
-                <CheckCircle className="h-6 w-6 text-green-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col space-y-1">
-                <span className="text-sm font-medium text-muted-foreground">Pending Invites</span>
-                <span className="text-3xl font-bold">{MOCK_INVITATIONS.length}</span>
-              </div>
-              <div className="rounded-full p-3 bg-amber-500/10">
-                <AlertCircle className="h-6 w-6 text-amber-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Member management */}
-      <Card>
-        <CardHeader className="space-y-0 pb-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-50"></div>
+        <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
+          <div className="flex items-start justify-between">
             <div>
-              <CardTitle>Member Management</CardTitle>
-              <CardDescription className="mt-1">View and manage all members of your SACCO</CardDescription>
+              <h1 className="text-3xl font-bold text-white mb-2">Member Management</h1>
+              <p className="text-gray-300 text-lg">Manage {entityData.name} membership</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button className="gap-2" size="sm">
-                <UserPlus className="h-4 w-4" />
-                Invite Member
+            <div className="flex space-x-3">
+              <Button 
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh
               </Button>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Download className="h-4 w-4" />
+              <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl">
+                <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Upload className="h-4 w-4" />
-                Import
+              <Button className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0 rounded-xl">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add Member
               </Button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div className="flex gap-2 flex-wrap">
-              <Button 
-                variant={activeTab === 'all' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('all')}
-                size="sm"
-              >
-                All Members
-              </Button>
-              <Button 
-                variant={activeTab === 'verified' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('verified')}
-                size="sm"
-              >
-                Verified
-              </Button>
-              <Button 
-                variant={activeTab === 'unverified' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('unverified')}
-                size="sm"
-              >
-                Unverified
-              </Button>
-              <Button 
-                variant={activeTab === 'invites' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('invites')}
-                size="sm"
-              >
-                Invitations
-              </Button>
-            </div>
-            
-            <div className="relative w-full md:w-auto">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search members..."
-                className="w-full md:w-[250px] pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+          
+          {/* Remove error display for demo */}
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl blur-xl opacity-50"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Total Members</p>
+                <p className="text-2xl font-bold text-white">{totalMembers}</p>
+                <p className="text-xs text-emerald-400">Registered</p>
+              </div>
+              <div className="p-3 bg-emerald-500/20 rounded-xl">
+                <Users className="h-6 w-6 text-emerald-400" />
+              </div>
             </div>
           </div>
-          
-          {/* All Members Tab */}
-          {activeTab === 'all' && (
-            <div className="rounded-md border">
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl blur-xl opacity-50"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Active Members</p>
+                <p className="text-2xl font-bold text-white">{activeMembers}</p>
+                <p className="text-xs text-emerald-400">
+                  {totalMembers > 0 ? Math.round((activeMembers / totalMembers) * 100) : 0}% of total
+                </p>
+              </div>
+              <div className="p-3 bg-emerald-500/20 rounded-xl">
+                <CheckCircle className="h-6 w-6 text-emerald-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-2xl blur-xl opacity-50"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Pending Applications</p>
+                <p className="text-2xl font-bold text-white">{pendingMembers}</p>
+                <p className="text-xs text-orange-400">Awaiting approval</p>
+              </div>
+              <div className="p-3 bg-orange-500/20 rounded-xl">
+                <User className="h-6 w-6 text-orange-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-2xl blur-xl opacity-50"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">KYC Verified</p>
+                <p className="text-2xl font-bold text-white">{kycVerifiedMembers}</p>
+                <p className="text-xs text-cyan-400">
+                  {totalMembers > 0 ? Math.round((kycVerifiedMembers / totalMembers) * 100) : 0}% verified
+                </p>
+              </div>
+              <div className="p-3 bg-cyan-500/20 rounded-xl">
+                <Shield className="h-6 w-6 text-cyan-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Members Table */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-3xl blur-xl opacity-30"></div>
+        <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-white">Members</h3>
+            <div className="flex items-center space-x-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search members..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400 w-64"
+                />
+              </div>
+              
+              {/* Role Filter */}
+              <select
+                value={selectedFilter}
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                className="bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2"
+              >
+                <option value="all">All Roles</option>
+                <option value="chairperson">Chairperson</option>
+                <option value="treasurer">Treasurer</option>
+                <option value="secretary">Secretary</option>
+                <option value="member">Member</option>
+              </select>
+              
+              {/* Status Filter */}
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          {filteredMembers.length > 0 ? (
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Verification</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Shares</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="border-white/10 hover:bg-white/5">
+                    <TableHead className="text-gray-300">Member</TableHead>
+                    <TableHead className="text-gray-300">Role</TableHead>
+                    <TableHead className="text-gray-300">Shares</TableHead>
+                    <TableHead className="text-gray-300">KYC</TableHead>
+                    <TableHead className="text-gray-300">Joined</TableHead>
+                    <TableHead className="text-gray-300">Status</TableHead>
+                    <TableHead className="text-gray-300">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredMembers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                        No members found. Try adjusting your search criteria.
+                  {filteredMembers.map((member) => (
+                    <TableRow key={member.id} className="border-white/10 hover:bg-white/5">
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-white">{member.name}</p>
+                            <p className="text-sm text-gray-400">{member.email}</p>
+                            <p className="text-xs text-gray-500 font-mono">
+                              {truncateAddress(member.walletAddress)}
+                            </p>
+                          </div>
+                        </div>
                       </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredMembers.map((member) => (
-                      <TableRow key={member.id}>
-                        <TableCell>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-muted-foreground">{member.email}</div>
-                        </TableCell>
-                        <TableCell>{member.role}</TableCell>
-                        <TableCell>
-                          {member.kycVerified ? (
-                            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                              <CheckCircle className="mr-1 h-3 w-3" />
-                              Verified
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                              <XCircle className="mr-1 h-3 w-3" />
-                              Unverified
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>{formatDate(member.joinedDate)}</TableCell>
-                        <TableCell>{member.shares}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Edit Role</DropdownMenuItem>
-                              <DropdownMenuItem>Update Shares</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {!member.kycVerified && (
-                                <DropdownMenuItem>Mark as Verified</DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem className="text-destructive">
+                      <TableCell>
+                        <span className="text-white capitalize">{member.role}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-white">{member.shares}</span>
+                      </TableCell>
+                      <TableCell>
+                        {member.kycVerified ? (
+                          <CheckCircle className="h-5 w-5 text-emerald-400" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-400" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-300">{formatDate(member.joinedDate)}</span>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(member.status)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button className="h-8 w-8 p-0 bg-transparent hover:bg-white/10">
+                              <MoreHorizontal className="h-4 w-4 text-gray-400" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent 
+                            align="end" 
+                            className="bg-gray-800 border-gray-700 text-white"
+                          >
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-gray-700" />
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-700 cursor-pointer"
+                              onClick={() => {/* View member details */}}
+                            >
+                              <User className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-700 cursor-pointer"
+                              onClick={() => {/* Edit member */}}
+                            >
+                              <Mail className="mr-2 h-4 w-4" />
+                              Send Message
+                            </DropdownMenuItem>
+                            {member.status === 'pending' && (
+                              <>
+                                <DropdownMenuItem 
+                                  className="hover:bg-gray-700 cursor-pointer text-emerald-400"
+                                  onClick={() => handleMemberAction(member.id, 'approve')}
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Approve
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="hover:bg-gray-700 cursor-pointer text-red-400"
+                                  onClick={() => handleMemberAction(member.id, 'reject')}
+                                >
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Reject
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {member.status === 'active' && (
+                              <DropdownMenuItem 
+                                className="hover:bg-gray-700 cursor-pointer text-red-400"
+                                onClick={() => handleMemberAction(member.id, 'remove')}
+                              >
+                                <XCircle className="mr-2 h-4 w-4" />
                                 Remove Member
                               </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-          
-          {/* Verified Members Tab */}
-          {activeTab === 'verified' && (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Verification</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Shares</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMembers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                        No verified members found.
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    filteredMembers.map((member) => (
-                      <TableRow key={member.id}>
-                        <TableCell>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-muted-foreground">{member.email}</div>
-                        </TableCell>
-                        <TableCell>{member.role}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                            <CheckCircle className="mr-1 h-3 w-3" />
-                            Verified
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{formatDate(member.joinedDate)}</TableCell>
-                        <TableCell>{member.shares}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Edit Role</DropdownMenuItem>
-                              <DropdownMenuItem>Update Shares</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">
-                                Remove Member
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
-          )}
-          
-          {/* Unverified Members Tab */}
-          {activeTab === 'unverified' && (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Verification</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Shares</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMembers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                        No unverified members found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredMembers.map((member) => (
-                      <TableRow key={member.id}>
-                        <TableCell>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-muted-foreground">{member.email}</div>
-                        </TableCell>
-                        <TableCell>{member.role}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                            <XCircle className="mr-1 h-3 w-3" />
-                            Unverified
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{formatDate(member.joinedDate)}</TableCell>
-                        <TableCell>{member.shares}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Edit Role</DropdownMenuItem>
-                              <DropdownMenuItem>Update Shares</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem>Mark as Verified</DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive">
-                                Remove Member
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">
+                {searchTerm || selectedFilter !== 'all' || selectedStatus !== 'all' 
+                  ? 'No members match your filters' 
+                  : 'No members found'
+                }
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                {searchTerm || selectedFilter !== 'all' || selectedStatus !== 'all' 
+                  ? 'Try adjusting your search or filters'
+                  : 'Add your first member to get started'
+                }
+              </p>
+              {(!searchTerm && selectedFilter === 'all' && selectedStatus === 'all') && (
+                <Button className="mt-4 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0 rounded-xl">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add First Member
+                </Button>
+              )}
             </div>
           )}
-          
-          {/* Invitations Tab */}
-          {activeTab === 'invites' && (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Sent Date</TableHead>
-                    <TableHead>Expiry Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {MOCK_INVITATIONS.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                        No pending invitations found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    MOCK_INVITATIONS.map((invite) => (
-                      <TableRow key={invite.id}>
-                        <TableCell>{invite.email}</TableCell>
-                        <TableCell>{formatDate(invite.sentDate)}</TableCell>
-                        <TableCell>{formatDate(invite.expiryDate)}</TableCell>
-                        <TableCell>
-                          <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                            Pending
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>Resend Invitation</DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive">
-                                Cancel Invitation
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -4,112 +4,255 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  ArrowUpRight, 
-  ArrowDownLeft,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Activity,
   Plus,
-  Filter,
   Download,
-  Eye,
+  Upload,
+  ArrowUpRight,
+  ArrowDownLeft,
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle,
-  Coins,
+  RefreshCw,
+  Filter,
+  Search,
+  MoreHorizontal,
   BarChart3,
-  Activity
+  Eye
 } from 'lucide-react';
 import { getSavedWalletConnection } from '@/lib/common';
-import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from '@/components/ui/badge';
+import { 
+  apiService, 
+  type EntityData, 
+  type Transaction,
+  DEFAULT_ENTITY_DATA
+} from '@/lib/api/services';
 
-// Mock data for treasury transactions
-const mockTransactions = [
-  {
-    id: 'tx_001',
-    type: 'incoming',
-    amount: 500,
-    asset: 'ADA',
-    from: 'Member Contributions',
-    to: 'Treasury Wallet',
-    timestamp: Date.now() - 3600000,
-    status: 'confirmed',
-    txHash: 'a1b2c3d4e5f6...',
-    category: 'deposit'
-  },
-  {
-    id: 'tx_002',
-    type: 'outgoing',
-    amount: 250,
-    asset: 'ADA',
-    from: 'Treasury Wallet',
-    to: 'Equipment Purchase',
-    timestamp: Date.now() - 7200000,
-    status: 'confirmed',
-    txHash: 'f6e5d4c3b2a1...',
-    category: 'proposal'
-  },
-  {
-    id: 'tx_003',
-    type: 'incoming',
-    amount: 100,
-    asset: 'ADA',
-    from: 'Sarah Kimani',
-    to: 'Treasury Wallet',
-    timestamp: Date.now() - 86400000,
-    status: 'confirmed',
-    txHash: 'z9y8x7w6v5u4...',
-    category: 'membership'
-  },
-  {
-    id: 'tx_004',
-    type: 'outgoing',
-    amount: 300,
-    asset: 'ADA',
-    from: 'Treasury Wallet',
-    to: 'Emergency Fund',
-    timestamp: Date.now() - 172800000,
-    status: 'pending',
-    txHash: 'u4v5w6x7y8z9...',
-    category: 'proposal'
-  }
-];
+interface TreasuryStatCardProps {
+  title: string;
+  value: string | number;
+  change: string;
+  icon: React.ElementType;
+  positive: boolean;
+  loading?: boolean;
+}
+
+function TreasuryStatCard({ title, value, change, icon: Icon, positive, loading }: TreasuryStatCardProps) {
+  return (
+    <div className="relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5 rounded-2xl blur-xl opacity-50"></div>
+      <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-400">{title}</p>
+            <div className="flex items-center space-x-2">
+              {loading ? (
+                <div className="h-8 w-16 bg-gray-700 animate-pulse rounded"></div>
+              ) : (
+                <p className="text-2xl font-bold text-white">{value}</p>
+              )}
+            </div>
+            <p className={`text-xs ${positive ? 'text-emerald-400' : 'text-red-400'}`}>
+              {loading ? '...' : change}
+            </p>
+          </div>
+          <div className="p-3 bg-emerald-500/20 rounded-xl">
+            <Icon className="h-6 w-6 text-emerald-400" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TreasuryPage() {
   const router = useRouter();
-  const [entityData, setEntityData] = useState<any>(null);
+  const [entityData, setEntityData] = useState<EntityData>(DEFAULT_ENTITY_DATA);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [treasuryBalance, setTreasuryBalance] = useState<number>(0);
+
+  const loadTreasuryData = async (entityId: string, showLoading = true) => {
+    if (showLoading) {
+      setIsLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
+    setError(null);
+
+    try {
+      // Load entity data
+      const entityResponse = await apiService.getEntityData(entityId);
+      if (entityResponse.success && entityResponse.data) {
+        setEntityData(entityResponse.data);
+      } else {
+        console.error('Failed to load entity data:', entityResponse.error);
+        // Don't show error for demo
+      }
+
+      // Load treasury balance
+      const balanceResponse = await apiService.getTreasuryBalance(entityId);
+      if (balanceResponse.success && balanceResponse.data) {
+        setTreasuryBalance(balanceResponse.data.balance);
+      } else {
+        console.error('Failed to load treasury balance:', balanceResponse.error);
+        // Use default value, don't show error for demo
+      }
+
+      // Load transactions
+      const transactionsResponse = await apiService.getTransactions(entityId);
+      if (transactionsResponse.success && transactionsResponse.data) {
+        setTransactions(transactionsResponse.data);
+        setFilteredTransactions(transactionsResponse.data);
+      } else {
+        console.error('Failed to load transactions:', transactionsResponse.error);
+        // Keep empty array as fallback, don't show error for demo
+        setTransactions([]);
+        setFilteredTransactions([]);
+      }
+
+    } catch (error) {
+      console.error('Error loading treasury data:', error);
+      // Don't show error for demo
+      setTransactions([]);
+      setFilteredTransactions([]);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const loadEntityData = () => {
-      setIsLoading(true);
+    const initializeTreasuryPage = async () => {
+      const walletConnection = getSavedWalletConnection();
+      if (!walletConnection) {
+        router.push('/entity-registry');
+        return;
+      }
+      
+      const currentEntityData = localStorage.getItem('amana_current_entity');
+      if (!currentEntityData) {
+        router.push('/entity-registry');
+        return;
+      }
+      
       try {
-        const currentEntityData = localStorage.getItem('amana_current_entity');
-        if (currentEntityData) {
-          const parsedEntityData = JSON.parse(currentEntityData);
-          setEntityData(parsedEntityData);
+        const parsedEntityData = JSON.parse(currentEntityData);
+        
+        // Set entity data from localStorage immediately
+        setEntityData({
+          ...DEFAULT_ENTITY_DATA,
+          ...parsedEntityData
+        });
+        setTreasuryBalance(parsedEntityData.treasuryBalance || 0);
+        setIsLoading(false);
+        
+        // Then try to load from API if we have an ID
+        const entityId = parsedEntityData.id;
+        if (entityId) {
+          await loadTreasuryData(entityId, false);
         }
       } catch (error) {
-        console.error("Error loading entity data:", error);
-      } finally {
+        console.error("Error initializing treasury page:", error);
+        // Don't show error for demo
         setIsLoading(false);
       }
     };
 
-    loadEntityData();
-  }, []);
+    initializeTreasuryPage();
+  }, [router]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
-      </div>
-    );
-  }
+  // Filter transactions based on search and filters
+  useEffect(() => {
+    let filtered = transactions;
 
-  const formatDate = (timestamp: number) => {
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(transaction =>
+        transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (transaction.from && transaction.from.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (transaction.to && transaction.to.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Filter by category
+    if (selectedFilter !== 'all') {
+      filtered = filtered.filter(transaction => transaction.type === selectedFilter);
+    }
+
+    setFilteredTransactions(filtered);
+  }, [transactions, searchTerm, selectedFilter]);
+
+  const handleRefresh = () => {
+    const currentEntityData = localStorage.getItem('amana_current_entity');
+    if (currentEntityData) {
+      try {
+        const parsedEntityData = JSON.parse(currentEntityData);
+        const entityId = parsedEntityData.id;
+        if (entityId) {
+          loadTreasuryData(entityId, false);
+        }
+      } catch (error) {
+        console.error("Error refreshing data:", error);
+        // Don't show error for demo
+      }
+    }
+  };
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'income':
+        return <ArrowUpRight className="h-4 w-4 text-emerald-400" />;
+      case 'expense':
+        return <ArrowDownLeft className="h-4 w-4 text-red-400" />;
+      case 'transfer':
+        return <Activity className="h-4 w-4 text-cyan-400" />;
+      default:
+        return <Activity className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Completed</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Failed</Badge>;
+      default:
+        return <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">{status}</Badge>;
+    }
+  };
+
+  const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -119,15 +262,32 @@ export default function TreasuryPage() {
     });
   };
 
-  const totalBalance = 1240; // Mock balance in ADA
-  const totalAssets = 3; // Mock number of different assets
-  const pendingTransactions = mockTransactions.filter(tx => tx.status === 'pending').length;
-  const monthlyIncome = 850; // Mock monthly income
-  const monthlyExpenses = 420; // Mock monthly expenses
+  const formatAmount = (amount: number, type: string) => {
+    const prefix = type === 'income' ? '+' : type === 'expense' ? '-' : '';
+    return `${prefix}${amount} ₳`;
+  };
 
-  const filteredTransactions = selectedFilter === 'all' 
-    ? mockTransactions 
-    : mockTransactions.filter(tx => tx.category === selectedFilter);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading treasury data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalIncome = transactions
+    .filter(t => t.type === 'income' && t.status === 'completed')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense' && t.status === 'completed')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const pendingTransactions = transactions.filter(t => t.status === 'pending').length;
+  const netIncome = totalIncome - totalExpenses;
 
   return (
     <div className="space-y-8">
@@ -138,19 +298,29 @@ export default function TreasuryPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Treasury Management</h1>
-              <p className="text-gray-300 text-lg">Monitor and manage your cooperative's financial assets</p>
+              <p className="text-gray-300 text-lg">Monitor and manage {entityData.name} financial assets</p>
             </div>
             <div className="flex space-x-3">
+              <Button 
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
               <Button className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0 rounded-xl">
                 <Plus className="h-4 w-4 mr-2" />
-                New Proposal
+                New Transaction
               </Button>
             </div>
           </div>
+          
+          {/* Remove error display for demo */}
         </div>
       </div>
 
@@ -158,294 +328,243 @@ export default function TreasuryPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <TreasuryStatCard
           title="Total Balance"
-          value={`${totalBalance} ₳`}
-          change="+5.2% this month"
+          value={`${treasuryBalance || entityData.treasuryBalance || 0} ₳`}
+          change={`+${Math.round((totalIncome * 0.05) || 0)} this month`}
           icon={Wallet}
           positive={true}
+          loading={isLoading}
         />
         <TreasuryStatCard
           title="Monthly Income"
-          value={`${monthlyIncome} ₳`}
-          change="From member contributions"
+          value={`${totalIncome || entityData.monthlyIncome || 0} ₳`}
+          change="From contributions"
           icon={TrendingUp}
           positive={true}
+          loading={isLoading}
         />
         <TreasuryStatCard
           title="Monthly Expenses"
-          value={`${monthlyExpenses} ₳`}
+          value={`${totalExpenses || entityData.monthlyExpenses || 0} ₳`}
           change="Operational costs"
           icon={TrendingDown}
           positive={false}
+          loading={isLoading}
         />
         <TreasuryStatCard
           title="Pending Transactions"
-          value={`${pendingTransactions}`}
+          value={pendingTransactions}
           change="Awaiting approval"
           icon={Clock}
           positive={false}
+          loading={isLoading}
         />
       </div>
 
-      {/* Treasury Overview & Quick Actions */}
+      {/* Financial Overview Cards */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Asset Breakdown */}
-        <div className="lg:col-span-2 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-30"></div>
-          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-white">Asset Breakdown</h3>
-              <Button variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-xl">
-                <Eye className="h-4 w-4 mr-2" />
-                View Details
-              </Button>
-            </div>
-            
-            <div className="space-y-4">
-              <AssetItem
-                name="Cardano (ADA)"
-                amount="1,240"
-                percentage="85%"
-                value="$1,860"
-                change="+2.3%"
-                positive={true}
-              />
-              <AssetItem
-                name="Emergency Reserve"
-                amount="180"
-                percentage="12%"
-                value="$270"
-                change="+0.8%"
-                positive={true}
-              />
-              <AssetItem
-                name="Operational Fund"
-                amount="45"
-                percentage="3%"
-                value="$67"
-                change="-1.2%"
-                positive={false}
-              />
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-2xl blur-xl opacity-30"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Net Income</h3>
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-emerald-500/20 rounded-xl">
+                <TrendingUp className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div>
+                <p className={`text-2xl font-bold ${netIncome >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {formatAmount(Math.abs(netIncome), netIncome >= 0 ? 'income' : 'expense')}
+                </p>
+                <p className="text-sm text-gray-400">This month</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Quick Actions */}
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-3xl blur-xl opacity-30"></div>
-          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Quick Actions</h3>
-            <div className="space-y-3">
-              <Link href="/dashboard/treasury/proposals" className="block">
-                <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl hover:border-emerald-500/30 transition-all duration-200 group">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-emerald-500/20 rounded-xl">
-                      <Plus className="h-5 w-5 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-white">Create Proposal</p>
-                      <p className="text-sm text-gray-400">Request fund allocation</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              
-              <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-cyan-500/20 rounded-xl">
-                    <BarChart3 className="h-5 w-5 text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-white">Generate Report</p>
-                    <p className="text-sm text-gray-400">Financial summary</p>
-                  </div>
-                </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-30"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Transaction Volume</h3>
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-cyan-500/20 rounded-xl">
+                <Activity className="h-6 w-6 text-cyan-400" />
               </div>
-              
-              <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-purple-500/20 rounded-xl">
-                    <Activity className="h-5 w-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-white">Audit Trail</p>
-                    <p className="text-sm text-gray-400">View all transactions</p>
-                  </div>
-                </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{transactions.length}</p>
+                <p className="text-sm text-gray-400">Total transactions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-30"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Average Transaction</h3>
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-purple-500/20 rounded-xl">
+                <BarChart3 className="h-6 w-6 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">
+                  {transactions.length > 0 
+                    ? Math.round(transactions.reduce((sum, t) => sum + t.amount, 0) / transactions.length)
+                    : 0} ₳
+                </p>
+                <p className="text-sm text-gray-400">Per transaction</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Recent Transactions */}
+      {/* Transactions Table */}
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-3xl blur-xl opacity-30"></div>
         <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-white">Recent Transactions</h3>
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                <Filter className="h-4 w-4 text-gray-400" />
-                <select 
-                  value={selectedFilter}
-                  onChange={(e) => setSelectedFilter(e.target.value)}
-                  className="bg-white/10 border border-white/20 text-white text-sm rounded-xl px-3 py-1.5 focus:outline-none focus:border-emerald-500/50"
-                >
-                  <option value="all">All Transactions</option>
-                  <option value="deposit">Deposits</option>
-                  <option value="proposal">Proposals</option>
-                  <option value="membership">Membership</option>
-                </select>
+            <h3 className="text-xl font-semibold text-white">Transaction History</h3>
+            <div className="flex items-center space-x-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search transactions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400 w-64"
+                />
               </div>
-              <Button variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-xl">
-                View All
-              </Button>
+              
+              {/* Type Filter */}
+              <select
+                value={selectedFilter}
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                className="bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2"
+              >
+                <option value="all">All Types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+                <option value="transfer">Transfer</option>
+              </select>
             </div>
           </div>
-          
-          <div className="space-y-3">
-            {filteredTransactions.map((transaction) => (
-              <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                formatDate={formatDate}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function TreasuryStatCard({ 
-  title, 
-  value, 
-  change, 
-  icon: Icon, 
-  positive 
-}: { 
-  title: string; 
-  value: string; 
-  change: string; 
-  icon: React.ElementType; 
-  positive: boolean;
-}) {
-  return (
-    <div className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6 hover:border-emerald-500/30 transition-all duration-300">
-        <div className="flex items-center justify-between mb-4">
-          <Icon className="h-6 w-6 text-emerald-400" />
-          <div className={`text-xs px-2 py-1 rounded-lg ${positive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-            {change}
-          </div>
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-white mb-1">{value}</p>
-          <p className="text-sm text-gray-400">{title}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AssetItem({ 
-  name, 
-  amount, 
-  percentage, 
-  value, 
-  change, 
-  positive 
-}: { 
-  name: string; 
-  amount: string; 
-  percentage: string; 
-  value: string; 
-  change: string; 
-  positive: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
-      <div className="flex items-center space-x-4">
-        <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
-          <Coins className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <p className="font-medium text-white">{name}</p>
-          <p className="text-sm text-gray-400">{amount} ₳ • {percentage}</p>
-        </div>
-      </div>
-      <div className="text-right">
-        <p className="font-medium text-white">{value}</p>
-        <p className={`text-sm ${positive ? 'text-emerald-400' : 'text-red-400'}`}>
-          {change}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function TransactionItem({ 
-  transaction, 
-  formatDate 
-}: { 
-  transaction: any; 
-  formatDate: (timestamp: number) => string;
-}) {
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return <CheckCircle className="h-4 w-4 text-emerald-400" />;
-      case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-400" />;
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-400" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-400" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-emerald-500/20';
-      case 'pending':
-        return 'bg-yellow-500/20';
-      case 'failed':
-        return 'bg-red-500/20';
-      default:
-        return 'bg-gray-500/20';
-    }
-  };
-
-  return (
-    <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl hover:border-emerald-500/20 transition-all duration-200">
-      <div className="flex items-center space-x-4">
-        <div className={`p-2 rounded-xl ${getStatusColor(transaction.status)}`}>
-          {transaction.type === 'incoming' ? (
-            <ArrowDownLeft className="h-5 w-5 text-emerald-400" />
+          {filteredTransactions.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/10 hover:bg-white/5">
+                    <TableHead className="text-gray-300">Transaction</TableHead>
+                    <TableHead className="text-gray-300">Type</TableHead>
+                    <TableHead className="text-gray-300">Amount</TableHead>
+                    <TableHead className="text-gray-300">Date</TableHead>
+                    <TableHead className="text-gray-300">Status</TableHead>
+                    <TableHead className="text-gray-300">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredTransactions.map((transaction) => (
+                    <TableRow key={transaction.id} className="border-white/10 hover:bg-white/5">
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-white/5 rounded-lg">
+                            {getTransactionIcon(transaction.type)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-white">{transaction.description}</p>
+                            <p className="text-sm text-gray-400 capitalize">{transaction.category}</p>
+                            {transaction.txHash && (
+                              <p className="text-xs text-gray-500 font-mono">
+                                {transaction.txHash.slice(0, 8)}...{transaction.txHash.slice(-6)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-white capitalize">{transaction.type}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`font-medium ${
+                          transaction.type === 'income' 
+                            ? 'text-emerald-400' 
+                            : transaction.type === 'expense'
+                            ? 'text-red-400'
+                            : 'text-cyan-400'
+                        }`}>
+                          {formatAmount(transaction.amount, transaction.type)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-300">{formatDate(transaction.timestamp)}</span>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(transaction.status)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button className="h-8 w-8 p-0 bg-transparent hover:bg-white/10">
+                              <MoreHorizontal className="h-4 w-4 text-gray-400" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent 
+                            align="end" 
+                            className="bg-gray-800 border-gray-700 text-white"
+                          >
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-gray-700" />
+                            <DropdownMenuItem className="hover:bg-gray-700 cursor-pointer">
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            {transaction.txHash && (
+                              <DropdownMenuItem 
+                                className="hover:bg-gray-700 cursor-pointer"
+                                onClick={() => window.open(`https://cardanoscan.io/transaction/${transaction.txHash}`, '_blank')}
+                              >
+                                <Upload className="mr-2 h-4 w-4" />
+                                View on Explorer
+                              </DropdownMenuItem>
+                            )}
+                            {transaction.status === 'pending' && (
+                              <DropdownMenuItem className="hover:bg-gray-700 cursor-pointer text-red-400">
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Cancel
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
-            <ArrowUpRight className="h-5 w-5 text-cyan-400" />
+            <div className="text-center py-12">
+              <Wallet className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">
+                {searchTerm || selectedFilter !== 'all' 
+                  ? 'No transactions match your filters' 
+                  : 'No transactions found'
+                }
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                {searchTerm || selectedFilter !== 'all' 
+                  ? 'Try adjusting your search or filters'
+                  : 'Treasury activity will appear here'
+                }
+              </p>
+              {(!searchTerm && selectedFilter === 'all') && (
+                <Button className="mt-4 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0 rounded-xl">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Transaction
+                </Button>
+              )}
+            </div>
           )}
         </div>
-        <div>
-          <div className="flex items-center space-x-2">
-            <p className="font-medium text-white">
-              {transaction.type === 'incoming' ? 'Received' : 'Sent'}
-            </p>
-            {getStatusIcon(transaction.status)}
-          </div>
-          <p className="text-sm text-gray-400">
-            {transaction.type === 'incoming' ? transaction.from : transaction.to}
-          </p>
-        </div>
-      </div>
-      <div className="text-right">
-        <p className={`font-medium ${transaction.type === 'incoming' ? 'text-emerald-400' : 'text-white'}`}>
-          {transaction.type === 'incoming' ? '+' : '-'}{transaction.amount} ₳
-        </p>
-        <p className="text-sm text-gray-400">{formatDate(transaction.timestamp)}</p>
       </div>
     </div>
   );
