@@ -213,7 +213,7 @@ export default function EntityRegistrationForm() {
 
       toast({
         title: "Entity created successfully!",
-        description: "Your SACCO entity has been registered on the blockchain",
+        description: "Your Cooperative entity has been registered on the blockchain",
       });
 
       // Redirect to dashboard after a short delay
@@ -276,7 +276,7 @@ export default function EntityRegistrationForm() {
           </div>
           <div>
             <CardTitle className="text-2xl font-bold text-white">Create New Entity</CardTitle>
-            <CardDescription className="text-gray-300">Register your SACCO on the Cardano blockchain</CardDescription>
+            <CardDescription className="text-gray-300">Register your Cooperative on the Cardano blockchain</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -378,7 +378,7 @@ export default function EntityRegistrationForm() {
                 name="description"
                 value={entityData.description}
                 onChange={handleChange}
-                placeholder="Describe the purpose and goals of your SACCO..."
+                placeholder="Describe the purpose and goals of your Cooperative..."
                 rows={4}
                 disabled={isLoading}
                 required
@@ -389,7 +389,7 @@ export default function EntityRegistrationForm() {
           
           <div className="space-y-2">
             <h3 className="text-lg font-medium text-white">Governance Settings</h3>
-            <p className="text-sm text-gray-400">Configure how your SACCO will operate</p>
+            <p className="text-sm text-gray-400">Configure how your Cooperative will operate</p>
           </div>
           
           <div className="grid gap-6 sm:grid-cols-2">
@@ -482,7 +482,7 @@ export default function EntityRegistrationForm() {
               <div>
                 <p className="font-medium mb-2 text-white">Blockchain Notice:</p>
                 <p className="text-gray-300">
-                  This will create a smart contract on the Cardano blockchain to manage your SACCO. 
+                  This will create a smart contract on the Cardano blockchain to manage your Cooperative. 
                   The entity will be created with you as the founder, using your currently connected wallet. 
                   Transaction fees will apply, and the process may take a few minutes to complete.
                 </p>
@@ -497,7 +497,7 @@ export default function EntityRegistrationForm() {
             type="button" 
             onClick={() => router.push('/')}
             disabled={isLoading}
-            className="border-white/20 text-white hover:bg-white/10 rounded-xl"
+            className="border-white/20 text-slate-600 hover:bg-white/10 rounded-xl"
           >
             Cancel
           </Button>

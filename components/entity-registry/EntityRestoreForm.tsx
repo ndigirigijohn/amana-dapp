@@ -63,7 +63,7 @@ export default function EntityRestoreForm() {
         // Simulate creating a mock entity for demonstration
         const mockEntity = {
           id: `entity-${Date.now()}`,
-          name: "Restored SACCO Entity",
+          name: "Restored Cooperative Entity",
           description: "This entity was restored using Policy ID: " + policyId,
           governanceModel: "democratic",
           membershipFee: "1000",
@@ -85,7 +85,7 @@ export default function EntityRestoreForm() {
         
         toast({
           title: "Entity restored successfully",
-          description: "Your SACCO entity has been restored from the blockchain"
+          description: "Your Cooperative entity has been restored from the blockchain"
         });
         
         // Redirect to dashboard
@@ -115,7 +115,7 @@ export default function EntityRestoreForm() {
           <div>
             <CardTitle className="text-2xl font-bold text-white">Restore Existing Entity</CardTitle>
             <CardDescription className="text-gray-300 text-lg">
-              Import a SACCO that already exists on the blockchain
+              Import a Cooperative that already exists on the blockchain
             </CardDescription>
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function EntityRestoreForm() {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-white">Entity Identification</h3>
-                <p className="text-gray-400 text-sm">Provide either an Entity ID or Policy ID to locate your SACCO</p>
+                <p className="text-gray-400 text-sm">Provide either an Entity ID or Policy ID to locate your Cooperative</p>
               </div>
             </div>
             
@@ -276,7 +276,7 @@ export default function EntityRestoreForm() {
             type="button" 
             onClick={() => router.push('/')}
             disabled={isSubmitting}
-            className="border-white/20 text-white hover:bg-white/10 hover:border-cyan-500/50 rounded-xl px-6 py-3"
+            className="border-white/20 text-slate-600 hover:bg-white/10 hover:border-cyan-500/50 rounded-xl px-6 py-3"
           >
             Cancel
           </Button>

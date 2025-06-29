@@ -122,7 +122,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-            Transforming African financial cooperatives with fast, cost-saving, transparent, tokenized and borderless transactions.
+            Amana Chain Entities is Transforming African financial cooperatives with fast, cost-saving, transparent, tokenized and borderless transactions.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-20">

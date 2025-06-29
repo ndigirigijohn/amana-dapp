@@ -2,15 +2,19 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy:entity-registry": "ts-node src/scripts/sc/entity-registry/deploy.ts",
-    "build:offchain": "tsc -p tsconfig.offchain.json --listEmittedFiles",
-    "deploy:entity": "pnpm run build:offchain && node dist/offchain/deployment/deploy-entity-registry.js"
+    
+    "deploy:entity-registry": "ts-node contract-deployment/deploy-entity-registry.js",
+    "deploy:governance": "ts-node contract-deployment/deploy-governance.ts", 
+    "deploy:treasury": "ts-node contract-deployment/deploy-treasury.ts",
+    "deploy:member-nft": "ts-node contract-deployment/deploy-member-nft.ts"
   },
+
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@lucid-evolution/core-types": "^0.1.22",
