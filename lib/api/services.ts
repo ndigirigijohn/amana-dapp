@@ -134,6 +134,16 @@ class ApiService {
         ...options,
       });
 
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // If not JSON (e.g., HTML 404 page), return error
+        return {
+          success: false,
+          error: `API endpoint not available: ${endpoint}`,
+        };
+      }
+
       const data = await response.json();
       
       if (!response.ok) {
@@ -149,6 +159,15 @@ class ApiService {
       };
     } catch (error) {
       console.error('API request failed:', error);
+      
+      // Handle JSON parse errors specifically
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        return {
+          success: false,
+          error: `API endpoint not available: ${endpoint}`,
+        };
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',

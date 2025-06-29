@@ -100,7 +100,8 @@ export default function EntityPage() {
           }
         }
       } else {
-        setError(entityResponse.error || 'Failed to load entity data');
+        console.error('Failed to load entity data:', entityResponse.error);
+        // Don't show error for demo
       }
 
       // Load members data
@@ -109,11 +110,12 @@ export default function EntityPage() {
         setMembers(membersResponse.data);
       } else {
         console.error('Failed to load members:', membersResponse.error);
+        // Don't show error for demo
       }
 
     } catch (error) {
       console.error('Error loading entity data:', error);
-      setError('Failed to load entity data');
+      // Don't show error for demo
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -136,18 +138,22 @@ export default function EntityPage() {
       
       try {
         const parsedEntityData = JSON.parse(currentEntityData);
-        const entityId = parsedEntityData.id;
         
+        // Set entity data from localStorage immediately
+        setEntityData({
+          ...DEFAULT_ENTITY_DATA,
+          ...parsedEntityData
+        });
+        setIsLoading(false);
+        
+        // Then try to load from API if we have an ID
+        const entityId = parsedEntityData.id;
         if (entityId) {
-          await loadEntityData(entityId);
-        } else {
-          // Fallback to localStorage data
-          setEntityData(parsedEntityData);
-          setIsLoading(false);
+          await loadEntityData(entityId, false);
         }
       } catch (error) {
         console.error("Error loading entity data:", error);
-        setError('Invalid entity data');
+        // Don't show error for demo, just use defaults
         setIsLoading(false);
       }
     };
@@ -166,6 +172,7 @@ export default function EntityPage() {
         }
       } catch (error) {
         console.error("Error refreshing data:", error);
+        // Don't show error for demo
       }
     }
   };
@@ -265,12 +272,7 @@ export default function EntityPage() {
             </div>
           </div>
           
-          {error && (
-            <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-center space-x-2">
-              <AlertCircle className="h-4 w-4 text-yellow-400" />
-              <p className="text-yellow-400 text-sm">{error}</p>
-            </div>
-          )}
+          {/* Remove error display for demo */}
         </div>
       </div>
 

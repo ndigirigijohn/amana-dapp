@@ -132,8 +132,7 @@ export default function DashboardPage() {
         setEntityData(entityResponse.data);
       } else {
         console.error('Failed to load entity data:', entityResponse.error);
-        // Keep default values and show error
-        setError(entityResponse.error || 'Failed to load entity data');
+        // Keep default values, don't show error for demo
       }
 
       // Load dashboard stats
@@ -142,12 +141,12 @@ export default function DashboardPage() {
         setDashboardStats(statsResponse.data);
       } else {
         console.error('Failed to load dashboard stats:', statsResponse.error);
-        // Keep default values
+        // Keep default values, don't show error for demo
       }
 
     } catch (error) {
       console.error('Error loading dashboard data:', error);
-      setError('Failed to load dashboard data');
+      // Don't show error for demo, just log it
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -171,18 +170,22 @@ export default function DashboardPage() {
       
       try {
         const parsedEntityData = JSON.parse(currentEntityData);
-        const entityId = parsedEntityData.id;
         
+        // Set entity data from localStorage immediately
+        setEntityData({
+          ...DEFAULT_ENTITY_DATA,
+          ...parsedEntityData
+        });
+        setIsLoading(false);
+        
+        // Then try to load from API if we have an ID
+        const entityId = parsedEntityData.id;
         if (entityId) {
-          await loadDashboardData(entityId);
-        } else {
-          // Fallback to localStorage data if no ID
-          setEntityData(parsedEntityData);
-          setIsLoading(false);
+          await loadDashboardData(entityId, false);
         }
       } catch (error) {
         console.error("Error parsing entity data:", error);
-        setError('Invalid entity data');
+        // Don't show error for demo, just use defaults
         setIsLoading(false);
       }
     };
@@ -201,6 +204,7 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.error("Error refreshing data:", error);
+        // Don't show error for demo
       }
     }
   };
@@ -241,12 +245,7 @@ export default function DashboardPage() {
                 Refresh
               </Button>
             </div>
-            {error && (
-              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center space-x-2">
-                <AlertCircle className="h-4 w-4 text-red-400" />
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            )}
+            {/* Remove error display for demo */}
           </div>
         </div>
       </div>
