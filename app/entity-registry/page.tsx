@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import WalletConnect from '@/components/WalletConnect';
 import { getSavedWalletConnection } from '@/lib/common';
@@ -92,7 +91,7 @@ export default function EntityRegistryPage() {
               </h1>
               
               <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-                Create or restore your SACCO entity on the Cardano blockchain
+                Create or restore your Cooperative entity on the Cardano blockchain
               </p>
             </div>
           )}

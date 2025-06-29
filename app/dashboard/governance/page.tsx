@@ -1,105 +1,110 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle, 
-  CardFooter 
-} from '@/components/ui/card';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
-import { 
+  FileCheck, 
+  Clock, 
   CheckCircle, 
   XCircle, 
-  Clock, 
-  FileCheck, 
   AlertCircle,
-  FileText,
   Users,
-  BarChart3,
+  TrendingUp,
+  Vote,
   Plus,
-  Edit
+  Filter,
+  Eye,
+  ThumbsUp,
+  ThumbsDown,
+  BarChart3,
+  Target,
+  Award,
+  Activity
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { getSavedWalletConnection } from '@/lib/common';
 import Link from 'next/link';
 
-// Example proposal data - in a real app this would come from your backend
+// Mock data for governance proposals
 const mockProposals = [
   {
-    id: "prop-1",
-    title: "Increase membership fee to 1,500 KES",
-    description: "Proposal to adjust membership fee to account for inflation",
-    category: "parameter",
-    creator: "John D.",
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 5, // 5 days ago
-    deadline: Date.now() + 1000 * 60 * 60 * 24 * 2, // 2 days from now
-    status: "active",
-    votesFor: 4,
-    votesAgainst: 1,
-    votesAbstain: 0,
-    totalVotes: 5
-  },
-  {
-    id: "prop-2",
-    title: "Add new treasurer role",
-    description: "Introduce a dedicated treasurer role for better financial management",
-    category: "membership",
-    creator: "Sarah M.",
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 3, // 3 days ago
-    deadline: Date.now() + 1000 * 60 * 60 * 24 * 4, // 4 days from now
-    status: "active",
-    votesFor: 6,
-    votesAgainst: 2,
-    votesAbstain: 1,
-    totalVotes: 9
-  },
-  {
-    id: "prop-3",
-    title: "Approve fund allocation for community project",
-    description: "Allocate 500 ADA for the community water project",
-    category: "treasury",
-    creator: "David K.",
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 10, // 10 days ago
-    deadline: Date.now() - 1000 * 60 * 60 * 24 * 3, // 3 days ago
-    status: "approved",
+    id: 'prop_001',
+    title: 'Equipment Purchase Proposal',
+    description: 'Proposal to purchase new agricultural equipment for improved productivity',
+    category: 'treasury',
+    amount: 500,
+    proposer: 'John Mwangi',
+    status: 'active',
     votesFor: 8,
-    votesAgainst: 1,
-    votesAbstain: 0,
-    totalVotes: 9
+    votesAgainst: 2,
+    totalVotes: 10,
+    requiredVotes: 12,
+    endTime: Date.now() + 86400000 * 2, // 2 days from now
+    createdAt: Date.now() - 86400000, // 1 day ago
+    quorum: 60,
+    threshold: 51
   },
   {
-    id: "prop-4",
-    title: "Reduce voting threshold to 60%",
-    description: "Lower the voting threshold to improve governance efficiency",
-    category: "parameter",
-    creator: "Emily T.",
-    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 15, // 15 days ago
-    deadline: Date.now() - 1000 * 60 * 60 * 24 * 8, // 8 days ago
-    status: "rejected",
-    votesFor: 3,
-    votesAgainst: 7,
-    votesAbstain: 1,
-    totalVotes: 11
+    id: 'prop_002',
+    title: 'Membership Fee Adjustment',
+    description: 'Adjust monthly membership fee from 500 to 600 KES to cover operational costs',
+    category: 'parameter',
+    amount: 0,
+    proposer: 'Sarah Kimani',
+    status: 'approved',
+    votesFor: 9,
+    votesAgainst: 3,
+    totalVotes: 12,
+    requiredVotes: 12,
+    endTime: Date.now() - 86400000, // 1 day ago
+    createdAt: Date.now() - 86400000 * 3, // 3 days ago
+    quorum: 60,
+    threshold: 51
+  },
+  {
+    id: 'prop_003',
+    title: 'New Member Admission',
+    description: 'Approve admission of Peter Ochieng as a new cooperative member',
+    category: 'membership',
+    amount: 0,
+    proposer: 'Mary Wanjiku',
+    status: 'active',
+    votesFor: 7,
+    votesAgainst: 1,
+    totalVotes: 8,
+    requiredVotes: 12,
+    endTime: Date.now() + 86400000 * 5, // 5 days from now
+    createdAt: Date.now() - 86400000 * 2, // 2 days ago
+    quorum: 60,
+    threshold: 51
+  },
+  {
+    id: 'prop_004',
+    title: 'Emergency Fund Allocation',
+    description: 'Allocate 300 ADA to emergency fund for unexpected expenses',
+    category: 'treasury',
+    amount: 300,
+    proposer: 'David Ochieng',
+    status: 'rejected',
+    votesFor: 4,
+    votesAgainst: 8,
+    totalVotes: 12,
+    requiredVotes: 12,
+    endTime: Date.now() - 86400000 * 3, // 3 days ago
+    createdAt: Date.now() - 86400000 * 7, // 1 week ago
+    quorum: 60,
+    threshold: 51
   }
 ];
 
 export default function GovernancePage() {
+  const router = useRouter();
   const [entityData, setEntityData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   useEffect(() => {
-    // Load entity data from local storage
     const loadEntityData = () => {
       setIsLoading(true);
       try {
@@ -121,24 +126,17 @@ export default function GovernancePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
       </div>
     );
   }
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getTimeRemaining = (deadline: number) => {
+  const getTimeRemaining = (endTime: number) => {
     const now = Date.now();
-    if (deadline < now) return "Ended";
+    const diff = endTime - now;
     
-    const diff = deadline - now;
+    if (diff <= 0) return 'Voting ended';
+    
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     
@@ -152,231 +150,346 @@ export default function GovernancePage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-emerald-500" />;
       case 'rejected':
         return <XCircle className="h-5 w-5 text-red-500" />;
       case 'active':
         return <Clock className="h-5 w-5 text-amber-500" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+        return <AlertCircle className="h-5 w-5 text-gray-400" />;
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'treasury':
-        return <span className="bg-blue-500/10 text-blue-500 p-1 rounded">💰</span>;
+        return <span className="bg-blue-500/20 text-blue-400 p-2 rounded-xl">💰</span>;
       case 'parameter':
-        return <span className="bg-purple-500/10 text-purple-500 p-1 rounded">⚙️</span>;
+        return <span className="bg-purple-500/20 text-purple-400 p-2 rounded-xl">⚙️</span>;
       case 'membership':
-        return <span className="bg-green-500/10 text-green-500 p-1 rounded">👥</span>;
+        return <span className="bg-emerald-500/20 text-emerald-400 p-2 rounded-xl">👥</span>;
       default:
-        return <span className="bg-gray-500/10 text-gray-500 p-1 rounded">📄</span>;
+        return <span className="bg-gray-500/20 text-gray-400 p-2 rounded-xl">📄</span>;
     }
   };
 
   const activeProposals = mockProposals.filter(p => p.status === 'active').length;
-  const totalVotingPower = 100; // This would be calculated based on the user's stake/shares
+  const totalVotingPower = 8.5; // User's voting power percentage
   const votingThreshold = entityData?.votingThreshold || 51;
+  const participationRate = 85; // Mock participation rate
+
+  const filteredProposals = mockProposals.filter(proposal => {
+    const matchesCategory = selectedFilter === 'all' || proposal.category === selectedFilter;
+    const matchesStatus = selectedStatus === 'all' || proposal.status === selectedStatus;
+    return matchesCategory && matchesStatus;
+  });
 
   return (
-    <div className="space-y-6">
-      {/* Governance summary cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Proposals</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeProposals}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting your vote
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Your Voting Power</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalVotingPower}%</div>
-            <p className="text-xs text-muted-foreground">
-              Based on your contribution
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Voting Threshold</CardTitle>
-            <FileCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{votingThreshold}%</div>
-            <p className="text-xs text-muted-foreground">
-              Required for approval
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              Eligible to vote
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Governance actions */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Button className="flex-1 gap-2">
-          <Plus className="h-4 w-4" />
-          Create Proposal
-        </Button>
-        <Button className="flex-1 gap-2" variant="outline">
-          <Edit className="h-4 w-4" />
-          Edit Governance Settings
-        </Button>
-      </div>
-
-      {/* Active proposals */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Active Proposals</CardTitle>
-            <CardDescription>
-              Proposals that require your attention
-            </CardDescription>
+    <div className="space-y-8">
+      {/* Governance Header */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-50"></div>
+        <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Governance</h1>
+              <p className="text-gray-300 text-lg">Participate in cooperative decision-making and vote on proposals</p>
+            </div>
+            <div className="flex space-x-3">
+              <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </Button>
+              <Button className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white border-0 rounded-xl">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Proposal
+              </Button>
+            </div>
           </div>
-          <Button size="sm" asChild>
-            <Link href="/dashboard/governance/voting">Vote Now</Link>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {mockProposals.filter(p => p.status === 'active').length > 0 ? (
-            <div className="space-y-4">
-              {mockProposals
-                .filter(p => p.status === 'active')
-                .map((proposal) => (
-                  <div key={proposal.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        {getCategoryIcon(proposal.category)}
-                        <h3 className="font-medium">{proposal.title}</h3>
-                      </div>
-                      <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                        {getTimeRemaining(proposal.deadline)}
-                      </Badge>
+        </div>
+      </div>
+
+      {/* Governance Stats */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <GovernanceStatCard
+          title="Active Proposals"
+          value={`${activeProposals}`}
+          change="3 pending votes"
+          icon={Vote}
+          positive={true}
+        />
+        <GovernanceStatCard
+          title="Your Voting Power"
+          value={`${totalVotingPower}%`}
+          change="Based on stake"
+          icon={TrendingUp}
+          positive={true}
+        />
+        <GovernanceStatCard
+          title="Voting Threshold"
+          value={`${votingThreshold}%`}
+          change="Required to pass"
+          icon={Target}
+          positive={true}
+        />
+        <GovernanceStatCard
+          title="Participation Rate"
+          value={`${participationRate}%`}
+          change="Last 30 days"
+          icon={Activity}
+          positive={true}
+        />
+      </div>
+
+      {/* Voting Power & Quick Actions */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Your Voting Power */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-30"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
+            <h3 className="text-xl font-semibold text-white mb-6">Your Voting Power</h3>
+            
+            <div className="text-center mb-6">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center mb-4">
+                <span className="text-2xl font-bold text-white">{totalVotingPower}%</span>
+              </div>
+              <p className="text-gray-400">of total voting power</p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Proposals Voted</span>
+                <span className="text-white font-medium">8/10</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Voting Streak</span>
+                <span className="text-emerald-400 font-medium">5 consecutive</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="lg:col-span-2 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 rounded-3xl blur-xl opacity-30"></div>
+          <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
+            <h3 className="text-xl font-semibold text-white mb-6">Quick Actions</h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Link href="/dashboard/governance/voting" className="block">
+                <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl hover:border-emerald-500/30 transition-all duration-200 group">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-emerald-500/20 rounded-xl">
+                      <Vote className="h-5 w-5 text-emerald-400" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {proposal.description}
-                    </p>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress</span>
-                        <span>
-                          {Math.round((proposal.votesFor / proposal.totalVotes) * 100)}% of votes 
-                          ({proposal.votesFor} / {proposal.totalVotes})
-                        </span>
-                      </div>
-                      <Progress value={(proposal.votesFor / proposal.totalVotes) * 100} className="h-2" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>For: {proposal.votesFor}</span>
-                        <span>Against: {proposal.votesAgainst}</span>
-                        <span>Abstain: {proposal.votesAbstain}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <Button size="sm" asChild>
-                        <Link href={`/dashboard/governance/voting/${proposal.id}`}>Vote</Link>
-                      </Button>
+                    <div>
+                      <p className="font-medium text-white">Cast Vote</p>
+                      <p className="text-sm text-gray-400">Vote on active proposals</p>
                     </div>
                   </div>
-                ))}
+                </div>
+              </Link>
+              
+              <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-cyan-500/20 rounded-xl">
+                    <Plus className="h-5 w-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white">New Proposal</p>
+                    <p className="text-sm text-gray-400">Submit for voting</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-purple-500/20 rounded-xl">
+                    <BarChart3 className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white">View Analytics</p>
+                    <p className="text-sm text-gray-400">Governance metrics</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-amber-500/20 rounded-xl">
+                    <Award className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white">Voting History</p>
+                    <p className="text-sm text-gray-400">Past participation</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <Clock className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-              <p>No active proposals at the moment</p>
-              <p className="text-sm mt-1">
-                Create a new proposal to initiate a governance action
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      </div>
 
-      {/* Recent proposals */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Proposals</CardTitle>
-          <CardDescription>
-            History of past governance decisions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Status</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Creator</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Outcome</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockProposals
-                .filter(p => p.status !== 'active')
-                .sort((a, b) => b.createdAt - a.createdAt)
-                .map((proposal) => (
-                  <TableRow key={proposal.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(proposal.status)}
-                        <span className="capitalize">{proposal.status}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{proposal.title}</TableCell>
-                    <TableCell className="capitalize">{proposal.category}</TableCell>
-                    <TableCell>{proposal.creator}</TableCell>
-                    <TableCell>{formatDate(proposal.createdAt)}</TableCell>
-                    <TableCell>
-                      {proposal.status === 'approved' ? (
-                        <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                          Passed: {Math.round((proposal.votesFor / proposal.totalVotes) * 100)}%
-                        </Badge>
-                      ) : proposal.status === 'rejected' ? (
-                        <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
-                          Failed: {Math.round((proposal.votesAgainst / proposal.totalVotes) * 100)}%
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline">
-                          Pending
-                        </Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-        <CardFooter className="flex justify-center border-t">
-          <Button variant="outline" asChild className="w-full sm:w-auto">
-            <Link href="/dashboard/governance/history">View Full History</Link>
-          </Button>
-        </CardFooter>
-      </Card>
+      {/* Proposals List */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-30"></div>
+        <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-white">All Proposals</h3>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <Filter className="h-4 w-4 text-gray-400" />
+                <select 
+                  value={selectedFilter}
+                  onChange={(e) => setSelectedFilter(e.target.value)}
+                  className="bg-white/10 border border-white/20 text-white text-sm rounded-xl px-3 py-1.5 focus:outline-none focus:border-emerald-500/50"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="treasury">Treasury</option>
+                  <option value="parameter">Parameters</option>
+                  <option value="membership">Membership</option>
+                </select>
+              </div>
+              <select 
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white text-sm rounded-xl px-3 py-1.5 focus:outline-none focus:border-emerald-500/50"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            {filteredProposals.map((proposal) => (
+              <ProposalCard
+                key={proposal.id}
+                proposal={proposal}
+                getTimeRemaining={getTimeRemaining}
+                getStatusIcon={getStatusIcon}
+                getCategoryIcon={getCategoryIcon}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GovernanceStatCard({ 
+  title, 
+  value, 
+  change, 
+  icon: Icon, 
+  positive 
+}: { 
+  title: string; 
+  value: string; 
+  change: string; 
+  icon: React.ElementType; 
+  positive: boolean;
+}) {
+  return (
+    <div className="relative group">
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-6 hover:border-emerald-500/30 transition-all duration-300">
+        <div className="flex items-center justify-between mb-4">
+          <Icon className="h-6 w-6 text-emerald-400" />
+          <div className={`text-xs px-2 py-1 rounded-lg ${positive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+            {change}
+          </div>
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-white mb-1">{value}</p>
+          <p className="text-sm text-gray-400">{title}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProposalCard({ 
+  proposal, 
+  getTimeRemaining, 
+  getStatusIcon, 
+  getCategoryIcon 
+}: { 
+  proposal: any; 
+  getTimeRemaining: (endTime: number) => string; 
+  getStatusIcon: (status: string) => React.ReactNode; 
+  getCategoryIcon: (category: string) => React.ReactNode;
+}) {
+  const votePercentage = proposal.totalVotes > 0 ? (proposal.votesFor / proposal.totalVotes) * 100 : 0;
+  const quorumMet = proposal.totalVotes >= (proposal.requiredVotes * proposal.quorum / 100);
+
+  return (
+    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-emerald-500/20 transition-all duration-200">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start space-x-4">
+          {getCategoryIcon(proposal.category)}
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-2">
+              <h4 className="text-lg font-semibold text-white">{proposal.title}</h4>
+              {getStatusIcon(proposal.status)}
+            </div>
+            <p className="text-gray-400 mb-2">{proposal.description}</p>
+            <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <span>Proposed by {proposal.proposer}</span>
+              {proposal.amount > 0 && <span>Amount: {proposal.amount} ₳</span>}
+              <span>{getTimeRemaining(proposal.endTime)}</span>
+            </div>
+          </div>
+        </div>
+        {proposal.status === 'active' && (
+          <div className="flex space-x-2">
+            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl">
+              <ThumbsUp className="h-4 w-4 mr-1" />
+              Yes
+            </Button>
+            <Button size="sm" variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-xl">
+              <ThumbsDown className="h-4 w-4 mr-1" />
+              No
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Voting Progress */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-400">Voting Progress</span>
+          <span className="text-white">{proposal.totalVotes}/{proposal.requiredVotes} votes</span>
+        </div>
+        
+        <div className="w-full bg-gray-700/50 rounded-full h-2">
+          <div 
+            className="bg-gradient-to-r from-emerald-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(proposal.totalVotes / proposal.requiredVotes) * 100}%` }}
+          ></div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+              <span className="text-sm text-gray-400">For: {proposal.votesFor}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span className="text-sm text-gray-400">Against: {proposal.votesAgainst}</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className={`text-sm px-2 py-1 rounded-lg ${quorumMet ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+              {quorumMet ? 'Quorum Met' : 'Quorum Pending'}
+            </span>
+            <span className="text-sm text-gray-400">{votePercentage.toFixed(1)}% approval</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
