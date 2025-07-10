@@ -28,6 +28,24 @@ export function loadValidators() {
     throw new Error('Treasury validator not found in plutus.json');
   }
   
+  // Extract the governance validator
+  const governanceValidator = validators.find(
+    (v: any) => v.title === 'governance/governance.governance.spend'
+  );
+  
+  if (!governanceValidator) {
+    throw new Error('Governance validator not found in plutus.json');
+  }
+  
+  // Extract the member NFT policy
+  const memberNFTValidator = validators.find(
+    (v: any) => v.title === 'member_nft/member_nft.member_nft.mint'
+  );
+  
+  if (!memberNFTValidator) {
+    throw new Error('Member NFT policy not found in plutus.json');
+  }
+  
   return {
     entityRegistry: {
       compiledCode: entityRegistryValidator.compiledCode,
@@ -36,6 +54,14 @@ export function loadValidators() {
     treasury: {
       compiledCode: treasuryValidator.compiledCode,
       hash: treasuryValidator.hash
+    },
+    governance: {
+      compiledCode: governanceValidator.compiledCode,
+      hash: governanceValidator.hash
+    },
+    memberNFT: {
+      compiledCode: memberNFTValidator.compiledCode,
+      hash: memberNFTValidator.hash
     }
   };
 }
