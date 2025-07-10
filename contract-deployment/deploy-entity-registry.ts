@@ -23,6 +23,7 @@ interface EntityRegistryDeploymentOutput {
     timestamp: string;
     deployerVkh: string;
     initialFunding: string;
+    explorerUrl: string;
   };
   status: 'success' | 'failed';
 }
@@ -116,6 +117,10 @@ async function deployEntityRegistry() {
     await waitForTx(lucid, txHash);
     console.log(`✅ Transaction confirmed!`);
     
+    // Generate explorer URL
+    const explorerUrl = getBlockExplorerUrl(network, txHash);
+    console.log(`🔍 View transaction: ${explorerUrl}`);
+    
     // Create structured deployment output
     deploymentOutput = {
       contractInfo: {
@@ -129,7 +134,8 @@ async function deployEntityRegistry() {
         txHash,
         timestamp: new Date().toISOString(),
         deployerVkh: vkh,
-        initialFunding: initialFunding.toString()
+        initialFunding: initialFunding.toString(),
+        explorerUrl
       },
       status: 'success' as const
     };
@@ -162,7 +168,8 @@ async function deployEntityRegistry() {
         txHash: '',
         timestamp: new Date().toISOString(),
         deployerVkh: '',
-        initialFunding: '0'
+        initialFunding: '0',
+        explorerUrl: ''
       },
       status: 'failed' as const
     };

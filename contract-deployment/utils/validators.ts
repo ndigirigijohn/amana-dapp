@@ -1,4 +1,4 @@
-// offchain/utils/validators.ts
+// contract-deployment/utils/validators.ts
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -19,10 +19,23 @@ export function loadValidators() {
     throw new Error('Entity registry validator not found in plutus.json');
   }
   
+  // Extract the treasury validator
+  const treasuryValidator = validators.find(
+    (v: any) => v.title === 'treasury_management/treasury_management.treasury_management.spend'
+  );
+  
+  if (!treasuryValidator) {
+    throw new Error('Treasury validator not found in plutus.json');
+  }
+  
   return {
     entityRegistry: {
       compiledCode: entityRegistryValidator.compiledCode,
       hash: entityRegistryValidator.hash
+    },
+    treasury: {
+      compiledCode: treasuryValidator.compiledCode,
+      hash: treasuryValidator.hash
     }
   };
 }
