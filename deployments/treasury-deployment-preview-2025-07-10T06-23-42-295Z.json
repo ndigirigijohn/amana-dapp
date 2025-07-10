@@ -1,0 +1,17 @@
+{
+  "contractInfo": {
+    "name": "Treasury Management",
+    "type": "SpendingValidator",
+    "contractAddress": "addr_test1wqfwkqnldmgrxeplka66fquk09g0t0n7y6rk5khzdayn0rsttnjle",
+    "validatorHash": "e64593f8c309103159e45e30c4dff536005e488c50efbc35eef47758",
+    "network": "Preview"
+  },
+  "deployment": {
+    "txHash": "0eab9781a198326061e43e99e1f9e039d2146bb600c8a0e84c0ed7d2668c933d",
+    "timestamp": "2025-07-10T06:23:42.294Z",
+    "deployerVkh": "2b22884769dc312dd350965fb6111d47a24543ac5ed483e286cafba0",
+    "initialFunding": "5000000",
+    "explorerUrl": "https://preview.cardanoscan.io/transaction/0eab9781a198326061e43e99e1f9e039d2146bb600c8a0e84c0ed7d2668c933d"
+  },
+  "status": "success"
+}
