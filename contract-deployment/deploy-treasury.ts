@@ -1,4 +1,4 @@
-// contract-deployment/deploy-entity-registry.ts
+// contract-deployment/deploy-treasury.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import { env } from './config';
@@ -10,7 +10,7 @@ import { Data, SpendingValidator } from '@lucid-evolution/lucid';
 import { Network } from '@lucid-evolution/core-types';
 
 // Deployment output interface - structured for JSON file
-interface EntityRegistryDeploymentOutput {
+interface TreasuryDeploymentOutput {
   contractInfo: {
     name: string;
     type: string;
@@ -40,7 +40,7 @@ function getBlockExplorerUrl(network: Network, txHash: string): string {
 }
 
 // Save deployment output to JSON file
-function saveDeploymentOutput(output: EntityRegistryDeploymentOutput): void {
+function saveDeploymentOutput(output: TreasuryDeploymentOutput): void {
   const outputDir = path.join(process.cwd(), 'deployments');
   
   // Create deployments directory if it doesn't exist
@@ -50,27 +50,27 @@ function saveDeploymentOutput(output: EntityRegistryDeploymentOutput): void {
   
   // Create timestamped filename
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const filename = `entity-registry-deployment-${output.contractInfo.network.toLowerCase()}-${timestamp}.json`;
+  const filename = `treasury-deployment-${output.contractInfo.network.toLowerCase()}-${timestamp}.json`;
   const outputPath = path.join(outputDir, filename);
   
   // Write deployment output
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
   
   // Also save as latest deployment for easy reference
-  const latestPath = path.join(outputDir, `entity-registry-latest-${output.contractInfo.network.toLowerCase()}.json`);
+  const latestPath = path.join(outputDir, `treasury-latest-${output.contractInfo.network.toLowerCase()}.json`);
   fs.writeFileSync(latestPath, JSON.stringify(output, null, 2));
   
   console.log(`✅ Deployment output saved to: ${filename}`);
-  console.log(`✅ Latest deployment saved to: entity-registry-latest-${output.contractInfo.network.toLowerCase()}.json`);
+  console.log(`✅ Latest deployment saved to: treasury-latest-${output.contractInfo.network.toLowerCase()}.json`);
 }
 
 // Main deployment function
-async function deployEntityRegistry() {
+async function deployTreasury() {
   const startTime = new Date();
-  let deploymentOutput: EntityRegistryDeploymentOutput;
+  let deploymentOutput: TreasuryDeploymentOutput;
   
   try {
-    console.log('🚀 Starting entity registry deployment...');
+    console.log('🚀 Starting treasury deployment...');
     
     // Initialize Lucid
     const lucid = await initLucid(env.MNEMONIC);
@@ -78,8 +78,8 @@ async function deployEntityRegistry() {
     
     // Get validator info
     const validators = loadValidators();
-    const entityRegistryValidator = createValidator(validators.entityRegistry.compiledCode);
-    console.log(`📋 Entity registry validator loaded. Hash: ${validators.entityRegistry.hash}`);
+    const treasuryValidator = createValidator(validators.treasury.compiledCode);
+    console.log(`📋 Treasury validator loaded. Hash: ${validators.treasury.hash}`);
     
     // Get verification key hash
     const vkh = await getVerificationKeyHash(lucid);
@@ -91,12 +91,12 @@ async function deployEntityRegistry() {
     // Use the validatorToAddress function with the correct parameters
     const contractAddress = validatorToAddress(
       network,
-      entityRegistryValidator as SpendingValidator
+      treasuryValidator as SpendingValidator
     );
-    console.log(`🏛️ Entity registry contract address: ${contractAddress}`);
+    console.log(`🏛️ Treasury contract address: ${contractAddress}`);
     
     // Create the deployment transaction
-    const initialFunding = BigInt(2000000);
+    const initialFunding = BigInt(5000000); // 5 ADA for treasury
     const tx = lucid
       .newTx()
       .pay.ToAddress(
@@ -124,10 +124,10 @@ async function deployEntityRegistry() {
     // Create structured deployment output
     deploymentOutput = {
       contractInfo: {
-        name: 'Entity Registry',
+        name: 'Treasury Management',
         type: 'SpendingValidator',
         contractAddress,
-        validatorHash: validators.entityRegistry.hash,
+        validatorHash: validators.treasury.hash,
         network: network
       },
       deployment: {
@@ -143,22 +143,22 @@ async function deployEntityRegistry() {
     // Save deployment output to JSON file
     saveDeploymentOutput(deploymentOutput);
     
-    console.log('🎉 Entity registry deployment completed successfully!');
+    console.log('🎉 Treasury deployment completed successfully!');
     
     return {
       txHash,
       contractAddress,
-      validatorHash: validators.entityRegistry.hash,
+      validatorHash: validators.treasury.hash,
       deploymentOutput
     };
     
   } catch (error) {
-    console.error('❌ Entity registry deployment failed:', error);
+    console.error('❌ Treasury deployment failed:', error);
     
     // Create failed deployment output
     deploymentOutput = {
       contractInfo: {
-        name: 'Entity Registry',
+        name: 'Treasury Management',
         type: 'SpendingValidator',
         contractAddress: '',
         validatorHash: '',
@@ -187,7 +187,7 @@ async function deployEntityRegistry() {
 
 // Run the deployment if this file is executed directly
 if (require.main === module) {
-  deployEntityRegistry()
+  deployTreasury()
     .then(result => {
       console.log('🎯 Deployment successful!');
       console.log('📋 Summary:');
@@ -201,5 +201,5 @@ if (require.main === module) {
     });
 }
 
-export { deployEntityRegistry };
-export type { EntityRegistryDeploymentOutput };
+export { deployTreasury };
+export type { TreasuryDeploymentOutput };

@@ -1,0 +1,16 @@
+{
+  "contractInfo": {
+    "name": "Member NFT Policy",
+    "type": "MintingPolicy",
+    "policyId": "6e31517626d9283dc3029198022d59033f4d1d1d83b8f357bc0ee9cf",
+    "validatorHash": "5eaf042e13b2b316199673116c0c78eff6dfe2ed03e397ef5c9bfe58",
+    "network": "Preview"
+  },
+  "deployment": {
+    "txHash": "8f6ebc6b03512656d72577c58b64689a7ed349697199d59a5e652ee335ef96df",
+    "timestamp": "2025-07-10T06:47:56.835Z",
+    "deployerVkh": "2b22884769dc312dd350965fb6111d47a24543ac5ed483e286cafba0",
+    "explorerUrl": "https://preview.cardanoscan.io/transaction/8f6ebc6b03512656d72577c58b64689a7ed349697199d59a5e652ee335ef96df"
+  },
+  "status": "success"
+}

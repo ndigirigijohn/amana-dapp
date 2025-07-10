@@ -1,20 +1,20 @@
-// contract-deployment/deploy-entity-registry.ts
+// contract-deployment/deploy-member-nft.ts
 import * as fs from 'fs';
 import * as path from 'path';
 import { env } from './config';
 import { loadValidators } from './utils/validators';
-import { initLucid, getVerificationKeyHash, createValidator, waitForTx } from './utils/lucid-helpers';
+import { initLucid, getVerificationKeyHash, waitForTx } from './utils/lucid-helpers';
 // Import utils and additional types needed
-import { validatorToAddress } from '@lucid-evolution/utils';
-import { Data, SpendingValidator } from '@lucid-evolution/lucid';
+import { Data, MintingPolicy } from '@lucid-evolution/lucid';
+import { mintingPolicyToId } from '@lucid-evolution/utils';
 import { Network } from '@lucid-evolution/core-types';
 
 // Deployment output interface - structured for JSON file
-interface EntityRegistryDeploymentOutput {
+interface MemberNFTDeploymentOutput {
   contractInfo: {
     name: string;
     type: string;
-    contractAddress: string;
+    policyId: string;
     validatorHash: string;
     network: string;
   };
@@ -22,7 +22,6 @@ interface EntityRegistryDeploymentOutput {
     txHash: string;
     timestamp: string;
     deployerVkh: string;
-    initialFunding: string;
     explorerUrl: string;
   };
   status: 'success' | 'failed';
@@ -39,8 +38,16 @@ function getBlockExplorerUrl(network: Network, txHash: string): string {
   return `${baseUrls[network as keyof typeof baseUrls]}/${txHash}`;
 }
 
+// Create a minting policy from compiled code
+function createMintingPolicy(compiledCode: string): MintingPolicy {
+  return {
+    type: 'PlutusV2',
+    script: compiledCode
+  };
+}
+
 // Save deployment output to JSON file
-function saveDeploymentOutput(output: EntityRegistryDeploymentOutput): void {
+function saveDeploymentOutput(output: MemberNFTDeploymentOutput): void {
   const outputDir = path.join(process.cwd(), 'deployments');
   
   // Create deployments directory if it doesn't exist
@@ -50,27 +57,27 @@ function saveDeploymentOutput(output: EntityRegistryDeploymentOutput): void {
   
   // Create timestamped filename
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const filename = `entity-registry-deployment-${output.contractInfo.network.toLowerCase()}-${timestamp}.json`;
+  const filename = `member-nft-deployment-${output.contractInfo.network.toLowerCase()}-${timestamp}.json`;
   const outputPath = path.join(outputDir, filename);
   
   // Write deployment output
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
   
   // Also save as latest deployment for easy reference
-  const latestPath = path.join(outputDir, `entity-registry-latest-${output.contractInfo.network.toLowerCase()}.json`);
+  const latestPath = path.join(outputDir, `member-nft-latest-${output.contractInfo.network.toLowerCase()}.json`);
   fs.writeFileSync(latestPath, JSON.stringify(output, null, 2));
   
   console.log(`✅ Deployment output saved to: ${filename}`);
-  console.log(`✅ Latest deployment saved to: entity-registry-latest-${output.contractInfo.network.toLowerCase()}.json`);
+  console.log(`✅ Latest deployment saved to: member-nft-latest-${output.contractInfo.network.toLowerCase()}.json`);
 }
 
 // Main deployment function
-async function deployEntityRegistry() {
+async function deployMemberNFT() {
   const startTime = new Date();
-  let deploymentOutput: EntityRegistryDeploymentOutput;
+  let deploymentOutput: MemberNFTDeploymentOutput;
   
   try {
-    console.log('🚀 Starting entity registry deployment...');
+    console.log('🚀 Starting member NFT policy deployment...');
     
     // Initialize Lucid
     const lucid = await initLucid(env.MNEMONIC);
@@ -78,8 +85,8 @@ async function deployEntityRegistry() {
     
     // Get validator info
     const validators = loadValidators();
-    const entityRegistryValidator = createValidator(validators.entityRegistry.compiledCode);
-    console.log(`📋 Entity registry validator loaded. Hash: ${validators.entityRegistry.hash}`);
+    const memberNFTPolicy = createMintingPolicy(validators.memberNFT.compiledCode);
+    console.log(`📋 Member NFT policy loaded. Hash: ${validators.memberNFT.hash}`);
     
     // Get verification key hash
     const vkh = await getVerificationKeyHash(lucid);
@@ -88,19 +95,18 @@ async function deployEntityRegistry() {
     // Get network from config
     const network = lucid.config().network as Network;
     
-    // Use the validatorToAddress function with the correct parameters
-    const contractAddress = validatorToAddress(
-      network,
-      entityRegistryValidator as SpendingValidator
-    );
-    console.log(`🏛️ Entity registry contract address: ${contractAddress}`);
+    // For minting policies, we need to get the policy ID using the imported function
+    const policyId = mintingPolicyToId(memberNFTPolicy);
+    console.log(`🏛️ Member NFT Policy ID: ${policyId}`);
     
-    // Create the deployment transaction
-    const initialFunding = BigInt(2000000);
+    // Create a simple transaction to register the policy (send back to self)
+    const deployerAddress = await lucid.wallet().address();
+    const initialFunding = BigInt(2000000); // 2 ADA like the entity registry
+    
     const tx = lucid
       .newTx()
       .pay.ToAddress(
-        contractAddress,
+        deployerAddress,
         { lovelace: initialFunding }
       );
     
@@ -124,17 +130,16 @@ async function deployEntityRegistry() {
     // Create structured deployment output
     deploymentOutput = {
       contractInfo: {
-        name: 'Entity Registry',
-        type: 'SpendingValidator',
-        contractAddress,
-        validatorHash: validators.entityRegistry.hash,
+        name: 'Member NFT Policy',
+        type: 'MintingPolicy',
+        policyId,
+        validatorHash: validators.memberNFT.hash,
         network: network
       },
       deployment: {
         txHash,
         timestamp: new Date().toISOString(),
         deployerVkh: vkh,
-        initialFunding: initialFunding.toString(),
         explorerUrl
       },
       status: 'success' as const
@@ -143,24 +148,24 @@ async function deployEntityRegistry() {
     // Save deployment output to JSON file
     saveDeploymentOutput(deploymentOutput);
     
-    console.log('🎉 Entity registry deployment completed successfully!');
+    console.log('🎉 Member NFT policy deployment completed successfully!');
     
     return {
       txHash,
-      contractAddress,
-      validatorHash: validators.entityRegistry.hash,
+      policyId,
+      validatorHash: validators.memberNFT.hash,
       deploymentOutput
     };
     
   } catch (error) {
-    console.error('❌ Entity registry deployment failed:', error);
+    console.error('❌ Member NFT policy deployment failed:', error);
     
     // Create failed deployment output
     deploymentOutput = {
       contractInfo: {
-        name: 'Entity Registry',
-        type: 'SpendingValidator',
-        contractAddress: '',
+        name: 'Member NFT Policy',
+        type: 'MintingPolicy',
+        policyId: '',
         validatorHash: '',
         network: env.NETWORK || 'Preview'
       },
@@ -168,7 +173,6 @@ async function deployEntityRegistry() {
         txHash: '',
         timestamp: new Date().toISOString(),
         deployerVkh: '',
-        initialFunding: '0',
         explorerUrl: ''
       },
       status: 'failed' as const
@@ -187,11 +191,11 @@ async function deployEntityRegistry() {
 
 // Run the deployment if this file is executed directly
 if (require.main === module) {
-  deployEntityRegistry()
+  deployMemberNFT()
     .then(result => {
       console.log('🎯 Deployment successful!');
       console.log('📋 Summary:');
-      console.log(`   Contract Address: ${result.contractAddress}`);
+      console.log(`   Policy ID: ${result.policyId}`);
       console.log(`   Transaction Hash: ${result.txHash}`);
       console.log(`   Validator Hash: ${result.validatorHash}`);
     })
@@ -201,5 +205,5 @@ if (require.main === module) {
     });
 }
 
-export { deployEntityRegistry };
-export type { EntityRegistryDeploymentOutput };
+export { deployMemberNFT };
+export type { MemberNFTDeploymentOutput };

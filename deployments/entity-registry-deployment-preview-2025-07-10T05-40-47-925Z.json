@@ -1,0 +1,16 @@
+{
+  "contractInfo": {
+    "name": "Entity Registry",
+    "type": "SpendingValidator",
+    "contractAddress": "addr_test1wpttwlet9lngd5vkaxfm0l62gd9kmugvpv2czw46lafzaasrr4l5q",
+    "validatorHash": "45a6a439f50cb41279fbe0bab5fd2eda84ff02b9d1a395c800a5d98d",
+    "network": "Preview"
+  },
+  "deployment": {
+    "txHash": "00d855db58e1cc1a9867fe5e49d72f59e7d88e1ac165783ff00faa9c78af2a63",
+    "timestamp": "2025-07-10T05:40:47.924Z",
+    "deployerVkh": "2b22884769dc312dd350965fb6111d47a24543ac5ed483e286cafba0",
+    "initialFunding": "2000000"
+  },
+  "status": "success"
+}

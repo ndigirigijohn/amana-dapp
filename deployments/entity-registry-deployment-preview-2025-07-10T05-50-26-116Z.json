@@ -1,0 +1,17 @@
+{
+  "contractInfo": {
+    "name": "Entity Registry",
+    "type": "SpendingValidator",
+    "contractAddress": "addr_test1wpttwlet9lngd5vkaxfm0l62gd9kmugvpv2czw46lafzaasrr4l5q",
+    "validatorHash": "45a6a439f50cb41279fbe0bab5fd2eda84ff02b9d1a395c800a5d98d",
+    "network": "Preview"
+  },
+  "deployment": {
+    "txHash": "928919a93ed5b8b885d2c9a1024dc3e16090d0e88ec36f4afaf25c45c407e3f1",
+    "timestamp": "2025-07-10T05:50:26.115Z",
+    "deployerVkh": "2b22884769dc312dd350965fb6111d47a24543ac5ed483e286cafba0",
+    "initialFunding": "2000000",
+    "explorerUrl": "https://preview.cardanoscan.io/transaction/928919a93ed5b8b885d2c9a1024dc3e16090d0e88ec36f4afaf25c45c407e3f1"
+  },
+  "status": "success"
+}
