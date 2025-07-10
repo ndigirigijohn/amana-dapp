@@ -1,0 +1,17 @@
+{
+  "contractInfo": {
+    "name": "Governance",
+    "type": "SpendingValidator",
+    "contractAddress": "addr_test1wpqhtj7wd8kcg08gr4vm23wjxdjvwgzs0agakg99lu28r2cqp0tju",
+    "validatorHash": "39ef2a2d25b7bf49925657c4b2c80bab32b830d1027d0acff3483a07",
+    "network": "Preview"
+  },
+  "deployment": {
+    "txHash": "57727e9c53f68a1a1be17faa33391781aacbc84cc0ab54ad6ebee4fcb742aa8e",
+    "timestamp": "2025-07-10T06:34:38.190Z",
+    "deployerVkh": "2b22884769dc312dd350965fb6111d47a24543ac5ed483e286cafba0",
+    "initialFunding": "3000000",
+    "explorerUrl": "https://preview.cardanoscan.io/transaction/57727e9c53f68a1a1be17faa33391781aacbc84cc0ab54ad6ebee4fcb742aa8e"
+  },
+  "status": "success"
+}
