@@ -304,7 +304,7 @@ export default function EntityPage() {
         />
         <StatCard
           title="Membership Fee"
-          value={`${entityData.membershipFee || 0} KES`}
+          value={`${entityData.membershipFee || 0} ADA`}
           change="Monthly"
           icon={FileText}
           positive={true}

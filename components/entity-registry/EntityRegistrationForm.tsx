@@ -409,7 +409,7 @@ export default function EntityRegistrationForm() {
               </select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="membershipFee" className="text-white">Membership Fee (KES)</Label>
+              <Label htmlFor="membershipFee" className="text-white">Membership Fee (ADA)</Label>
               <Input
                 id="membershipFee"
                 name="membershipFee"
